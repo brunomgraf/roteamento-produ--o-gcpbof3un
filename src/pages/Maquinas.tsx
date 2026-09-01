@@ -69,63 +69,55 @@ function getIconComponent(iconName?: string) {
 
 const COLOR_MAP: Record<
   string,
-  { bg: string; text: string; border: string; badge: string; ring: string }
+  { bg: string; text: string; swatchBg: string; swatchRing: string }
 > = {
   blue: {
-    bg: 'bg-blue-500/10 dark:bg-blue-500/20',
+    bg: 'bg-blue-100 dark:bg-blue-950/60',
     text: 'text-blue-600 dark:text-blue-400',
-    border: 'border-blue-500/30',
-    badge: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
-    ring: 'border-blue-500 ring-blue-500/30',
+    swatchBg: 'bg-blue-500',
+    swatchRing: 'ring-blue-500',
   },
   amber: {
-    bg: 'bg-amber-500/10 dark:bg-amber-500/20',
+    bg: 'bg-amber-100 dark:bg-amber-950/60',
     text: 'text-amber-600 dark:text-amber-400',
-    border: 'border-amber-500/30',
-    badge: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
-    ring: 'border-amber-500 ring-amber-500/30',
+    swatchBg: 'bg-amber-500',
+    swatchRing: 'ring-amber-500',
   },
   violet: {
-    bg: 'bg-violet-500/10 dark:bg-violet-500/20',
+    bg: 'bg-violet-100 dark:bg-violet-950/60',
     text: 'text-violet-600 dark:text-violet-400',
-    border: 'border-violet-500/30',
-    badge: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
-    ring: 'border-violet-500 ring-violet-500/30',
+    swatchBg: 'bg-violet-500',
+    swatchRing: 'ring-violet-500',
   },
   green: {
-    bg: 'bg-green-500/10 dark:bg-green-500/20',
+    bg: 'bg-green-100 dark:bg-green-950/60',
     text: 'text-green-600 dark:text-green-400',
-    border: 'border-green-500/30',
-    badge: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
-    ring: 'border-green-500 ring-green-500/30',
+    swatchBg: 'bg-green-500',
+    swatchRing: 'ring-green-500',
   },
   red: {
-    bg: 'bg-red-500/10 dark:bg-red-500/20',
+    bg: 'bg-red-100 dark:bg-red-950/60',
     text: 'text-red-600 dark:text-red-400',
-    border: 'border-red-500/30',
-    badge: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
-    ring: 'border-red-500 ring-red-500/30',
+    swatchBg: 'bg-red-500',
+    swatchRing: 'ring-red-500',
   },
   orange: {
-    bg: 'bg-orange-500/10 dark:bg-orange-500/20',
+    bg: 'bg-orange-100 dark:bg-orange-950/60',
     text: 'text-orange-600 dark:text-orange-400',
-    border: 'border-orange-500/30',
-    badge: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
-    ring: 'border-orange-500 ring-orange-500/30',
+    swatchBg: 'bg-orange-500',
+    swatchRing: 'ring-orange-500',
   },
   pink: {
-    bg: 'bg-pink-500/10 dark:bg-pink-500/20',
+    bg: 'bg-pink-100 dark:bg-pink-950/60',
     text: 'text-pink-600 dark:text-pink-400',
-    border: 'border-pink-500/30',
-    badge: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
-    ring: 'border-pink-500 ring-pink-500/30',
+    swatchBg: 'bg-pink-500',
+    swatchRing: 'ring-pink-500',
   },
   cyan: {
-    bg: 'bg-cyan-500/10 dark:bg-cyan-500/20',
+    bg: 'bg-cyan-100 dark:bg-cyan-950/60',
     text: 'text-cyan-600 dark:text-cyan-400',
-    border: 'border-cyan-500/30',
-    badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
-    ring: 'border-cyan-500 ring-cyan-500/30',
+    swatchBg: 'bg-cyan-500',
+    swatchRing: 'ring-cyan-500',
   },
 }
 
@@ -133,11 +125,10 @@ function getColorStyles(color?: string) {
   const c = (color || 'blue').toLowerCase()
   return (
     COLOR_MAP[c] || {
-      bg: 'bg-blue-500/10 dark:bg-blue-500/20',
+      bg: 'bg-blue-100 dark:bg-blue-950/60',
       text: 'text-blue-600 dark:text-blue-400',
-      border: 'border-blue-500/30',
-      badge: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
-      ring: 'border-blue-500 ring-blue-500/30',
+      swatchBg: 'bg-blue-500',
+      swatchRing: 'ring-blue-500',
     }
   )
 }
@@ -320,20 +311,23 @@ export default function Maquinas() {
             <Skeleton className="h-5 w-40" />
             <Skeleton className="h-5 w-24" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="p-5 border-border space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i} className="bg-card rounded-xl border p-5 shadow-sm space-y-4">
                 <div className="flex items-start justify-between">
-                  <Skeleton className="w-10 h-10 rounded-xl" />
-                  <Skeleton className="h-6 w-16 rounded-full" />
+                  <Skeleton className="w-12 h-12 rounded-lg" />
+                  <div className="flex items-center gap-1">
+                    <Skeleton className="h-8 w-8 rounded-md" />
+                    <Skeleton className="h-8 w-8 rounded-md" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-6 w-32" />
+                <div className="space-y-2 mt-3">
+                  <Skeleton className="h-5 w-36" />
                   <Skeleton className="h-4 w-24 font-mono" />
                 </div>
-                <div className="pt-3 border-t border-border flex gap-2">
-                  <Skeleton className="h-9 flex-1 rounded-md" />
-                  <Skeleton className="h-9 w-9 rounded-md" />
+                <div className="pt-2 flex items-center justify-between">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-8 w-24 rounded-md" />
                 </div>
               </Card>
             ))}
@@ -392,107 +386,97 @@ export default function Maquinas() {
             <span className="text-xs">{machines.filter((m) => m.active).length} ativas</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {machines.map((machine, index) => {
               const IconComp = getIconComponent(machine.icon)
               const colorStyles = getColorStyles(machine.color)
-              const delay = `${Math.min(index * 40, 300)}ms`
+              const delay = `${index * 50}ms`
 
               return (
-                <Card
+                <div
                   key={machine.id}
                   style={{
                     animationDelay: delay,
                     animationFillMode: 'backwards',
                   }}
                   className={cn(
-                    'p-5 border-border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between animate-fade-in-stagger',
-                    !machine.active && 'opacity-70 bg-muted/30',
+                    'bg-card rounded-xl border p-5 shadow-sm hover:shadow-md transition relative flex flex-col justify-between animate-card-slide-up',
+                    !machine.active && 'opacity-70 bg-muted/20',
                   )}
                 >
+                  {/* Top row: Icon container and Top-right action buttons */}
                   <div>
-                    {/* Top row: Icon and Active status badge */}
-                    <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-start justify-between gap-3">
                       <div
                         className={cn(
-                          'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs',
+                          'w-12 h-12 rounded-lg flex items-center justify-center shrink-0',
                           colorStyles.bg,
                           colorStyles.text,
-                          colorStyles.border,
                         )}
                         aria-hidden="true"
                       >
-                        <IconComp className="w-5 h-5" />
+                        <IconComp className="w-6 h-6" />
                       </div>
 
-                      {machine.active ? (
-                        <Badge
-                          variant="secondary"
-                          className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 hover:bg-emerald-100 font-medium text-xs px-2.5 py-0.5 flex items-center gap-1.5"
+                      {/* Action buttons: top-right, icon-only, h-8 w-8, rounded-md, hover:bg-muted */}
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(machine)}
+                          className="h-8 w-8 rounded-md hover:bg-muted p-0 text-muted-foreground hover:text-foreground"
+                          aria-label={`Editar máquina ${machine.name}`}
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          Ativa
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="text-muted-foreground border-border text-xs px-2.5 py-0.5"
+                          <Pencil className="w-4 h-4" aria-hidden="true" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeletingMachine(machine)}
+                          disabled={deletingId === machine.id}
+                          className="h-8 w-8 rounded-md hover:bg-muted p-0 text-destructive hover:text-destructive hover:scale-105 transition-transform"
+                          aria-label={`Excluir máquina ${machine.name}`}
                         >
-                          Inativa
-                        </Badge>
-                      )}
+                          <Trash2 className="w-4 h-4" aria-hidden="true" />
+                        </Button>
+                      </div>
                     </div>
 
-                    {/* Machine info */}
-                    <CardHeader className="p-0 mb-3 space-y-1">
-                      <CardTitle className="text-lg font-bold text-foreground line-clamp-1">
+                    {/* Machine name & Slug */}
+                    <div className="mt-3">
+                      <h3 className="font-semibold text-base text-foreground line-clamp-1">
                         {machine.name}
-                      </CardTitle>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono bg-muted text-muted-foreground px-2 py-0.5 rounded border border-border/60">
-                          /{machine.slug}
-                        </span>
-                      </div>
-                    </CardHeader>
+                      </h3>
+                      <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                        /{machine.slug}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Actions: Ver Fila, Edit, Delete */}
-                  <div className="space-y-2 pt-3 border-t border-border mt-2">
+                  {/* Bottom row: Active badge & link to queue */}
+                  <div className="flex items-center justify-between pt-4 mt-4 border-t border-border/60">
+                    {machine.active ? (
+                      <span className="text-xs rounded-full px-2 py-0.5 font-medium bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300 inline-flex items-center">
+                        Ativa
+                      </span>
+                    ) : (
+                      <span className="text-xs rounded-full px-2 py-0.5 font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 inline-flex items-center">
+                        Inativa
+                      </span>
+                    )}
+
                     <Button
                       asChild
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      className="w-full justify-center text-xs min-h-[38px] h-9 focus-visible:ring-2 focus-visible:ring-ring font-medium"
+                      className="h-8 text-xs font-medium px-2.5 text-muted-foreground hover:text-foreground"
                       aria-label={`Ver fila da máquina ${machine.name}`}
                     >
-                      <Link to={`/maquina/${machine.slug}`}>Ver Fila de Produção</Link>
+                      <Link to={`/maquina/${machine.slug}`}>Ver Fila &rarr;</Link>
                     </Button>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => openEditDialog(machine)}
-                        className="flex-1 text-xs min-h-[38px] h-9 gap-1.5 font-medium"
-                        aria-label={`Editar máquina ${machine.name}`}
-                      >
-                        <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>Editar</span>
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setDeletingMachine(machine)}
-                        disabled={deletingId === machine.id}
-                        className="h-9 w-9 min-h-[38px] min-w-[38px] text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 shrink-0"
-                        aria-label={`Excluir máquina ${machine.name}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
-                      </Button>
-                    </div>
                   </div>
-                </Card>
+                </div>
               )
             })}
           </div>
@@ -501,9 +485,9 @@ export default function Maquinas() {
 
       {/* 4. Dialog Form: Create / Edit Machine */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[480px]">
+        <DialogContent className="rounded-xl p-6 max-w-md w-full">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <DialogHeader>
+            <DialogHeader className="p-0">
               <DialogTitle className="text-lg font-bold">
                 {editingMachine ? 'Editar Máquina' : 'Nova Máquina'}
               </DialogTitle>
@@ -514,10 +498,10 @@ export default function Maquinas() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 py-2">
-              {/* Nome da máquina (text, required, placeholder "Ex: Centro de Usinagem") */}
-              <div className="space-y-1.5">
-                <Label htmlFor={nameId} className="text-sm font-medium">
+            <div className="space-y-4">
+              {/* Nome da máquina */}
+              <div>
+                <Label htmlFor={nameId} className="text-sm font-medium mb-1.5 block">
                   Nome da máquina <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -526,19 +510,21 @@ export default function Maquinas() {
                   onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Ex: Centro de Usinagem"
                   className={cn(
-                    'h-11',
+                    'h-11 rounded-lg border-input focus:ring-2',
                     validationErrors.name && 'border-destructive focus-visible:ring-destructive',
                   )}
                   autoFocus
                 />
                 {validationErrors.name && (
-                  <p className="text-xs text-destructive font-medium">{validationErrors.name}</p>
+                  <p className="text-xs text-destructive font-medium mt-1">
+                    {validationErrors.name}
+                  </p>
                 )}
               </div>
 
-              {/* Slug (text, required, auto-generated from name) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
+              {/* Slug */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
                   <Label htmlFor={slugId} className="text-sm font-medium">
                     Identificador (Slug) <span className="text-destructive">*</span>
                   </Label>
@@ -561,53 +547,65 @@ export default function Maquinas() {
                   onChange={(e) => handleSlugChange(e.target.value)}
                   placeholder="ex: centro-de-usinagem"
                   className={cn(
-                    'font-mono text-sm h-11',
+                    'font-mono text-sm h-11 rounded-lg border-input focus:ring-2',
                     validationErrors.slug && 'border-destructive focus-visible:ring-destructive',
                   )}
                 />
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground mt-1">
                   Usado na rota do navegador:{' '}
                   <span className="font-mono text-foreground">/maquina/{slug || '...'}</span>
                 </p>
                 {validationErrors.slug && (
-                  <p className="text-xs text-destructive font-medium">{validationErrors.slug}</p>
+                  <p className="text-xs text-destructive font-medium mt-1">
+                    {validationErrors.slug}
+                  </p>
                 )}
               </div>
 
-              {/* Cor (select: blue, amber, violet, green, red, orange, pink, cyan) */}
-              <div className="space-y-1.5">
-                <Label htmlFor={colorId} className="text-sm font-medium">
-                  Cor de identificação
-                </Label>
-                <Select value={color} onValueChange={(val) => setColor(val as MachineColor)}>
-                  <SelectTrigger id={colorId} className="h-11">
-                    <SelectValue placeholder="Selecione uma cor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MACHINE_COLORS.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              'w-3.5 h-3.5 rounded-full border',
-                              c.bgClass,
-                              c.borderClass,
-                              c.textClass,
-                            )}
-                            style={{ backgroundColor: `currentColor` }}
-                          />
-                          <span>{c.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Color select: grid of color swatches, 8 options, each swatch w-8 h-8 rounded-full, selected has ring-2 ring-offset-2 */}
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block">Cor de identificação</Label>
+                <div className="grid grid-cols-8 gap-2 pt-1 items-center">
+                  {MACHINE_COLORS.map((c) => {
+                    const isSelected = color === c.value
+                    const swatchClass =
+                      {
+                        blue: 'bg-blue-500',
+                        amber: 'bg-amber-500',
+                        violet: 'bg-violet-500',
+                        green: 'bg-green-500',
+                        red: 'bg-red-500',
+                        orange: 'bg-orange-500',
+                        pink: 'bg-pink-500',
+                        cyan: 'bg-cyan-500',
+                      }[c.value] || 'bg-blue-500'
+
+                    return (
+                      <button
+                        type="button"
+                        key={c.value}
+                        title={c.label}
+                        onClick={() => setColor(c.value)}
+                        className={cn(
+                          'w-8 h-8 rounded-full transition-transform hover:scale-110 flex items-center justify-center focus:outline-hidden',
+                          swatchClass,
+                          isSelected &&
+                            'ring-2 ring-offset-2 ring-foreground ring-offset-background',
+                        )}
+                        aria-label={`Selecionar cor ${c.label}`}
+                        aria-pressed={isSelected}
+                      >
+                        {isSelected && <Check className="w-4 h-4 text-white stroke-[3]" />}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
               {/* Ícone */}
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Ícone representativo</Label>
-                <div className="grid grid-cols-6 gap-2 pt-1">
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block">Ícone representativo</Label>
+                <div className="grid grid-cols-6 gap-2">
                   {Object.keys(ICON_MAP).map((iconKey) => {
                     const Icon = ICON_MAP[iconKey]
                     const isSelected = icon === iconKey
@@ -617,7 +615,7 @@ export default function Maquinas() {
                         key={iconKey}
                         onClick={() => setIcon(iconKey)}
                         className={cn(
-                          'h-11 rounded-lg border flex items-center justify-center transition-all hover:bg-muted',
+                          'h-10 rounded-lg border flex items-center justify-center transition-all hover:bg-muted',
                           isSelected
                             ? 'border-primary bg-primary/10 text-primary ring-2 ring-primary/20'
                             : 'border-border text-muted-foreground',
@@ -645,17 +643,12 @@ export default function Maquinas() {
               </div>
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0">
+            <DialogFooter className="pt-2">
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsFormOpen(false)}
+                type="submit"
                 disabled={saving}
-                className="min-h-[44px] h-11"
+                className="h-11 bg-primary text-primary-foreground rounded-lg font-semibold w-full"
               >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={saving} className="min-h-[44px] h-11 px-5">
                 {saving
                   ? 'Salvando...'
                   : editingMachine

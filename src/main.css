@@ -299,6 +299,10 @@
     animation: fade-in-stagger 300ms ease-out forwards;
   }
 
+  .animate-card-slide-up {
+    animation: fade-in-stagger 250ms ease-out both;
+  }
+
   .animate-step-card {
     animation: fade-in-stagger 300ms ease-out both;
   }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T16:28:30.216Z",
+  "generatedAt": "2026-09-01T16:42:37.582Z",
   "collections": [
     {
       "name": "users",
@@ -48,11 +48,11 @@
       "name": "itens",
       "type": "base",
       "apiRules": {
-        "list": "",
-        "view": "",
+        "list": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "view": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
         "create": "",
-        "update": "",
-        "delete": ""
+        "update": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "delete": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id"
       },
       "fields": [
         {
@@ -99,6 +99,13 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         }
       ],
       "indexes": []
@@ -107,11 +114,11 @@
       "name": "routing_steps",
       "type": "base",
       "apiRules": {
-        "list": "",
-        "view": "",
+        "list": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "view": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
         "create": "",
-        "update": "",
-        "delete": ""
+        "update": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "delete": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id"
       },
       "fields": [
         {
@@ -180,6 +187,13 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         }
       ],
       "indexes": []
@@ -188,11 +202,11 @@
       "name": "material_purchases",
       "type": "base",
       "apiRules": {
-        "list": "",
-        "view": "",
+        "list": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "view": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
         "create": "",
-        "update": "",
-        "delete": ""
+        "update": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "delete": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id"
       },
       "fields": [
         {
@@ -245,6 +259,13 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         }
       ],
       "indexes": []
@@ -253,11 +274,11 @@
       "name": "outsourced_services",
       "type": "base",
       "apiRules": {
-        "list": "",
-        "view": "",
+        "list": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "view": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
         "create": "",
-        "update": "",
-        "delete": ""
+        "update": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id",
+        "delete": "@request.auth.id = '' || user_id = '' || user_id = @request.auth.id"
       },
       "fields": [
         {
@@ -304,6 +325,13 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
         }
       ],
       "indexes": []

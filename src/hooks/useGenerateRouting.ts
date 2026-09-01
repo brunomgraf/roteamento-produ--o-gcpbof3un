@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
 import { callGenerateRoutingAgent, type GenerateRoutingParams } from '@/services/aiRouting'
 import type { GeneratedRouting } from '@/types/routing'
-import { useToast } from '@/hooks/use-toast'
+import { withRetry } from '@/lib/retry'
+import { notify } from '@/lib/notify'
 
 export interface UseGenerateRoutingReturn {
   isGenerating: boolean
@@ -16,7 +17,6 @@ export function useGenerateRouting(): UseGenerateRoutingReturn {
   const [isGenerating, setIsGenerating] = useState(false)
   const [routing, setRouting] = useState<GeneratedRouting | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { toast } = useToast()
 
   const generateRouting = useCallback(
     async (params: GenerateRoutingParams): Promise<GeneratedRouting | null> => {
@@ -24,26 +24,30 @@ export function useGenerateRouting(): UseGenerateRoutingReturn {
       setError(null)
 
       try {
-        const result = await callGenerateRoutingAgent(params)
+        const result = await withRetry(() => callGenerateRoutingAgent(params), {
+          maxRetries: 3,
+          delays: [1000, 2000, 4000],
+        })
         setRouting(result)
+        notify.success('Roteamento gerado com sucesso!', {
+          description: `${result.routing_steps?.length || 0} etapas industriais calculadas.`,
+        })
         return result
       } catch (err: unknown) {
         const errorMsg =
           err instanceof Error && err.message ? err.message : 'Não foi possível gerar o roteamento.'
         setError(errorMsg)
-        toast({
-          title: 'Erro no roteamento',
+        notify.error('Erro no roteamento', {
           description: errorMsg.includes('Não foi possível')
             ? errorMsg
-            : `Não foi possível gerar o roteamento. ${errorMsg}`,
-          variant: 'destructive',
+            : `Não foi possível gerar o roteamento após 3 tentativas. ${errorMsg}`,
         })
         return null
       } finally {
         setIsGenerating(false)
       }
     },
-    [toast],
+    [],
   )
 
   const clearRouting = useCallback(() => {

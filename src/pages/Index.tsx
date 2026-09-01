@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Cpu, Cog, Layers, Gauge } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Plus, Cpu, Cog, Layers, Gauge, ChevronDown, CheckCircle2, Clock, Play } from 'lucide-react'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -150,6 +150,70 @@ const recentItems: RecentItem[] = [
     status: 'Aguardando',
     data: 'Ontem, 11:05',
   },
+  {
+    id: '8',
+    code: 'ORD-1035',
+    name: 'Eixo Sem-Fim Passo 4mm Aço 8620',
+    setor: 'Torno',
+    status: 'Em Producao',
+    data: 'Ontem, 09:30',
+  },
+  {
+    id: '9',
+    code: 'ORD-1034',
+    name: 'Suporte de Fixação Usinado em Centro CNC',
+    setor: 'CNC',
+    status: 'Aguardando',
+    data: 'Anteontem, 16:45',
+  },
+  {
+    id: '10',
+    code: 'ORD-1033',
+    name: 'Anel Espaçador Retificado 0.005mm',
+    setor: 'Retifica',
+    status: 'Concluido',
+    data: 'Anteontem, 14:20',
+  },
+  {
+    id: '11',
+    code: 'ORD-1032',
+    name: 'Engrenagem Cônica Helicoidal Módulo 3',
+    setor: 'Fresa',
+    status: 'Em Producao',
+    data: 'Anteontem, 11:15',
+  },
+  {
+    id: '12',
+    code: 'ORD-1031',
+    name: 'Tarugo Latão CLA Ø38mm x 1000mm',
+    setor: 'Compra',
+    status: 'Concluido',
+    data: 'Anteontem, 08:30',
+  },
+  {
+    id: '13',
+    code: 'ORD-1030',
+    name: 'Eixo Estriado 6 Vias SAE 4340',
+    setor: 'Torno',
+    status: 'Com Material',
+    data: '3 dias atrás',
+  },
+  {
+    id: '14',
+    code: 'ORD-1029',
+    name: 'Câmara de Válvula Hidráulica 4 Vias',
+    setor: 'CNC',
+    status: 'Concluido',
+    data: '3 dias atrás',
+  },
+  {
+    id: '15',
+    code: 'ORD-1028',
+    name: 'Tratamento Térmico Cementação e Têmpera',
+    setor: 'Terceirizado',
+    status: 'Concluido',
+    data: '4 dias atrás',
+  },
 ]
 
 const sectorChipClasses: Record<SectorType, string> = {
@@ -168,9 +232,45 @@ const statusBadgeClasses: Record<StatusType, string> = {
   'Com Material': 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
 }
 
+const PAGE_SIZE = 10
+
 export default function Index() {
+  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE)
+
+  // Memoized machine calculations and aggregated stats for performance
+  const machineTotals = useMemo(() => {
+    return machines.reduce(
+      (acc, machine) => {
+        return {
+          totalFila: acc.totalFila + machine.stats.naFila,
+          totalEmAndamento: acc.totalEmAndamento + machine.stats.emAndamento,
+          totalConcluidos: acc.totalConcluidos + machine.stats.concluidos,
+        }
+      },
+      { totalFila: 0, totalEmAndamento: 0, totalConcluidos: 0 },
+    )
+  }, [])
+
+  const machineList = useMemo(() => {
+    return machines.map((m) => ({
+      ...m,
+      totalOperacoes: m.stats.naFila + m.stats.emAndamento + m.stats.concluidos,
+    }))
+  }, [])
+
+  // Pagination for recent items: 10 per page with "Carregar mais"
+  const visibleItems = useMemo(() => {
+    return recentItems.slice(0, visibleCount)
+  }, [visibleCount])
+
+  const hasMoreItems = visibleCount < recentItems.length
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, recentItems.length))
+  }
+
   return (
-    <div className="space-y-8 pb-16 md:pb-0">
+    <div className="space-y-8 pb-16 md:pb-0 animate-page-fade">
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -180,11 +280,16 @@ export default function Index() {
           </p>
         </div>
 
-        {/* Botão de Ação Rápida no Desktop */}
+        {/* Botão de Ação Rápida no Desktop com touch target h-11 */}
         <div className="hidden md:flex items-center gap-3">
-          <Button asChild size="lg" className="gap-2 shadow-sm">
+          <Button
+            asChild
+            size="lg"
+            className="gap-2 shadow-sm min-h-[44px] h-11 px-5 focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Cadastrar novo item no sistema"
+          >
             <Link to="/novo-item">
-              <Plus className="w-5 h-5" />
+              <Plus className="w-5 h-5" aria-hidden="true" />
               Novo Item
             </Link>
           </Button>
@@ -193,11 +298,30 @@ export default function Index() {
 
       {/* Stat Cards (resumo de máquinas) */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">
-          Resumo das Máquinas
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Resumo das Máquinas
+          </h2>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400">
+              <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+              Total na Fila: {machineTotals.totalFila}
+            </span>
+            <span>•</span>
+            <span className="inline-flex items-center gap-1 font-medium text-blue-700 dark:text-blue-400">
+              <Play className="w-3.5 h-3.5" aria-hidden="true" />
+              Em Andamento: {machineTotals.totalEmAndamento}
+            </span>
+            <span>•</span>
+            <span className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-400">
+              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+              Concluídos: {machineTotals.totalConcluidos}
+            </span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {machines.map((m, index) => {
+          {machineList.map((m, index) => {
             const Icon = m.icon
             const delay = `${index * 50}ms`
             return (
@@ -212,7 +336,8 @@ export default function Index() {
                 <div>
                   <div className="flex items-start justify-between mb-3">
                     <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${m.iconBg} ${m.iconColor}`}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${m.iconBg} ${m.iconColor}`}
+                      aria-hidden="true"
                     >
                       <Icon className="w-5 h-5" />
                     </div>
@@ -247,7 +372,8 @@ export default function Index() {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="w-full justify-center text-xs mt-2"
+                    className="w-full justify-center text-xs mt-2 min-h-[44px] h-11 focus-visible:ring-2 focus-visible:ring-ring font-medium"
+                    aria-label={`Ver detalhes da fila da máquina ${m.name}`}
                   >
                     <Link to={`/maquina/${m.type}`}>Ver Detalhes</Link>
                   </Button>
@@ -258,13 +384,14 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Tabela de Itens Recentes */}
+      {/* Tabela de Itens Recentes com Paginação */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-foreground">Itens Recentes</h2>
             <p className="text-xs text-muted-foreground">
-              Últimas ordens de fabricação e movimentações nos setores
+              Mostrando {visibleItems.length} de {recentItems.length} ordens de fabricação
+              registradas
             </p>
           </div>
         </div>
@@ -291,8 +418,8 @@ export default function Index() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentItems.map((item, index) => {
-                const rowDelay = `${200 + index * 40}ms`
+              {visibleItems.map((item, index) => {
+                const rowDelay = `${Math.min(index * 30, 300)}ms`
                 return (
                   <TableRow
                     key={item.id}
@@ -330,18 +457,34 @@ export default function Index() {
               })}
             </TableBody>
           </Table>
+
+          {/* Paginação: Botão Carregar Mais */}
+          {hasMoreItems && (
+            <div className="p-4 border-t border-border flex items-center justify-center bg-muted/20">
+              <Button
+                variant="outline"
+                onClick={handleLoadMore}
+                className="gap-2 min-h-[44px] h-11 px-6 font-medium text-sm focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Carregar mais itens recentes (mostrando ${visibleItems.length} de ${recentItems.length})`}
+              >
+                <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                <span>Carregar mais ({recentItems.length - visibleItems.length} restantes)</span>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Botão de Ação Rápida Fixo no Mobile */}
+      {/* Botão de Ação Rápida Fixo no Mobile com touch target adequado */}
       <div className="fixed bottom-6 right-6 z-50 md:hidden">
         <Button
           asChild
           size="lg"
-          className="rounded-full shadow-lg gap-2 h-14 px-6 text-base font-semibold"
+          className="rounded-full shadow-lg gap-2 min-h-[44px] h-14 px-6 text-base font-semibold focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Cadastrar novo item"
         >
           <Link to="/novo-item">
-            <Plus className="w-6 h-6" />
+            <Plus className="w-6 h-6" aria-hidden="true" />
             Novo Item
           </Link>
         </Button>

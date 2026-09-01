@@ -136,7 +136,12 @@ function getSectorConfig(sector: string, machineType?: string) {
 export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) {
   if (isLoading) {
     return (
-      <div className="bg-muted/30 rounded-xl p-6 min-h-[400px] space-y-4">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label="Gerando e calculando etapas do fluxograma"
+        className="bg-muted/30 rounded-xl p-6 min-h-[400px] space-y-4 animate-page-fade"
+      >
         <div className="flex items-center justify-between pb-3 border-b border-border">
           <div className="space-y-1">
             <Skeleton className="h-5 w-40" />
@@ -172,6 +177,7 @@ export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) 
             </div>
           ))}
         </div>
+        <span className="sr-only">IA calculando etapas industriais do fluxograma...</span>
       </div>
     )
   }
@@ -183,8 +189,11 @@ export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) 
       !routing.outsourced_services?.length)
   ) {
     return (
-      <div className="bg-muted/30 rounded-xl p-6 min-h-[400px] flex flex-col items-center justify-center text-center">
-        <div className="relative mb-4 flex items-center justify-center">
+      <div
+        aria-live="polite"
+        className="bg-muted/30 rounded-xl p-6 min-h-[400px] flex flex-col items-center justify-center text-center animate-page-fade"
+      >
+        <div className="relative mb-4 flex items-center justify-center" aria-hidden="true">
           {/* Simple dashed-line path / illustration */}
           <div className="absolute inset-0 rounded-full border border-dashed border-muted-foreground/30 scale-125" />
           <Layers3 className="w-16 h-16 text-muted-foreground/40" />
@@ -192,27 +201,27 @@ export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) 
         <h3 className="text-lg font-medium text-muted-foreground">O fluxograma aparecerá aqui</h3>
         <p className="text-sm text-muted-foreground/70 mt-2 max-w-sm">
           Preencha o nome da peça e os detalhes à esquerda e clique em{' '}
-          <strong className="text-foreground">"Gerar Roteamento com IA"</strong> para visualizar as
-          etapas industriais, compras e serviços terceirizados.
+          <strong className="text-foreground">&quot;Gerar Roteamento com IA&quot;</strong> para
+          visualizar as etapas industriais, compras e serviços terceirizados.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
-            <Cog className="w-3.5 h-3.5 text-blue-500" /> Torno
+            <Cog className="w-3.5 h-3.5 text-blue-500" aria-hidden="true" /> Torno
           </span>
           <span className="inline-flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
-            <Layers className="w-3.5 h-3.5 text-amber-500" /> Fresa
+            <Layers className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" /> Fresa
           </span>
           <span className="inline-flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
-            <Cpu className="w-3.5 h-3.5 text-violet-500" /> CNC
+            <Cpu className="w-3.5 h-3.5 text-violet-500" aria-hidden="true" /> CNC
           </span>
           <span className="inline-flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
-            <Gauge className="w-3.5 h-3.5 text-green-500" /> Retífica
+            <Gauge className="w-3.5 h-3.5 text-green-500" aria-hidden="true" /> Retífica
           </span>
           <span className="inline-flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
-            <ShoppingCart className="w-3.5 h-3.5 text-orange-500" /> Compra
+            <ShoppingCart className="w-3.5 h-3.5 text-orange-500" aria-hidden="true" /> Compra
           </span>
           <span className="inline-flex items-center gap-1 bg-muted px-2.5 py-1 rounded-md">
-            <ExternalLink className="w-3.5 h-3.5 text-red-500" /> Terceirizado
+            <ExternalLink className="w-3.5 h-3.5 text-red-500" aria-hidden="true" /> Terceirizado
           </span>
         </div>
       </div>
@@ -233,12 +242,15 @@ export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) 
   let globalStepCounter = 0
 
   return (
-    <div className="bg-muted/30 rounded-xl p-6 min-h-[400px] space-y-6">
+    <div
+      aria-live="polite"
+      className="bg-muted/30 rounded-xl p-6 min-h-[400px] space-y-6 animate-page-fade"
+    >
       {/* Header Summary Card */}
       <div className="p-4 rounded-xl border border-border bg-card shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-primary text-xs font-semibold uppercase tracking-wider mb-1">
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-4 h-4" aria-hidden="true" />
             <span>Roteamento Gerado</span>
           </div>
           <h2 className="text-xl font-bold text-foreground">{routing.item_name}</h2>

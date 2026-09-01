@@ -36,30 +36,44 @@ export class ErrorBoundary extends Component<Props, State> {
   public override render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="min-h-screen flex items-center justify-center bg-background text-foreground p-4"
+        >
           <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-lg p-6 sm:p-8 text-center space-y-4">
-            <div className="w-14 h-14 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto">
+            <div
+              className="w-14 h-14 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto"
+              aria-hidden="true"
+            >
               <AlertTriangle className="w-7 h-7" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-xl font-bold tracking-tight text-foreground">
-                Ops! Algo deu errado.
-              </h1>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">Algo deu errado</h1>
               <p className="text-sm text-muted-foreground">
-                Por favor, tente recarregar a página ou voltar para o início.
+                Ocorreu uma falha inesperada na aplicação. Clique no botão abaixo para recarregar.
               </p>
               {this.state.error?.message && (
-                <div className="mt-3 p-3 bg-muted rounded text-xs text-left font-mono overflow-x-auto text-muted-foreground border border-border">
+                <div className="mt-3 p-3 bg-muted rounded-lg text-xs text-left font-mono overflow-x-auto text-muted-foreground border border-border">
                   {this.state.error.message}
                 </div>
               )}
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 pt-2 justify-center">
-              <Button onClick={this.handleReload} className="w-full sm:w-auto">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Recarregar a página
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center">
+              <Button
+                onClick={this.handleReload}
+                className="w-full sm:w-auto min-h-[44px] h-11 px-5 focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Recarregar a aplicação"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
+                Recarregar
               </Button>
-              <Button onClick={this.handleReset} variant="outline" className="w-full sm:w-auto">
+              <Button
+                onClick={this.handleReset}
+                variant="outline"
+                className="w-full sm:w-auto min-h-[44px] h-11 px-5 focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Tentar novamente sem recarregar toda a página"
+              >
                 Tentar novamente
               </Button>
             </div>

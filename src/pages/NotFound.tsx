@@ -24,9 +24,13 @@ const NotFound = () => {
           </p>
         </div>
         <div className="pt-2">
-          <Button asChild className="gap-2">
+          <Button
+            asChild
+            className="gap-2 min-h-[44px] h-11 px-5 focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Voltar para a página inicial"
+          >
             <Link to="/">
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               Voltar ao Início
             </Link>
           </Button>

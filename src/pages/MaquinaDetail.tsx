@@ -110,13 +110,31 @@ export default function MaquinaDetail() {
     stats,
   } = useMachineQueue(currentKey)
 
+  // Memoized callback for search input change
+  const handleSearchChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value)
+    },
+    [setSearchQuery],
+  )
+
+  const handleClearSearch = React.useCallback(() => {
+    setSearchQuery('')
+  }, [setSearchQuery])
+
   // 1. Invalid Machine Type State
   if (!machine) {
     return (
-      <div className="space-y-6 animate-fade-in max-w-4xl mx-auto py-6">
-        <Button asChild variant="ghost" size="sm" className="gap-2">
+      <div className="space-y-6 animate-page-fade max-w-4xl mx-auto py-6">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="gap-2 min-h-[44px] h-11 px-4 focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Voltar ao Dashboard"
+        >
           <Link to="/">
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             Voltar ao Dashboard
           </Link>
         </Button>
@@ -169,17 +187,18 @@ export default function MaquinaDetail() {
   const Icon = machine.icon
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-6 animate-page-fade pb-12">
       {/* Top Breadcrumb navigation */}
       <div className="flex items-center justify-between">
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className="gap-2 text-muted-foreground hover:text-foreground -ml-2"
+          className="gap-2 text-muted-foreground hover:text-foreground -ml-2 min-h-[44px] h-11 px-3 focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Voltar ao Dashboard"
         >
           <Link to="/">
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             Voltar ao Dashboard
           </Link>
         </Button>
@@ -189,9 +208,10 @@ export default function MaquinaDetail() {
           size="sm"
           onClick={() => refresh()}
           disabled={loading}
-          className="gap-2 h-8 text-xs"
+          aria-label="Atualizar ordens de serviço da fila"
+          className="gap-2 min-h-[44px] h-11 px-4 text-xs font-medium focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <RefreshCw className={cn('w-3.5 h-3.5', loading && 'animate-spin')} />
+          <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} aria-hidden="true" />
           <span>Atualizar Fila</span>
         </Button>
       </div>
@@ -268,8 +288,9 @@ export default function MaquinaDetail() {
                 size="sm"
                 variant={isActive ? 'default' : 'outline'}
                 onClick={() => setStatusFilter(opt.key)}
+                aria-label={`Filtrar ordens por status: ${opt.label}`}
                 className={cn(
-                  'h-8 text-xs font-medium shrink-0 transition-all',
+                  'min-h-[44px] h-11 px-3.5 text-xs font-medium shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-ring',
                   isActive
                     ? 'shadow-xs font-semibold'
                     : 'text-muted-foreground hover:text-foreground',
@@ -281,19 +302,25 @@ export default function MaquinaDetail() {
           })}
         </div>
 
-        {/* Search Input with debounce */}
+        {/* Search Input with debounce (300ms) */}
         <div className="relative w-full sm:w-72 md:w-80 shrink-0">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
           <Input
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Buscar por nome da peça..."
-            className="pl-9 h-9 text-xs sm:text-sm bg-background"
+            aria-label="Buscar ordens de serviço por nome da peça"
+            className="pl-9 min-h-[44px] h-11 text-xs sm:text-sm bg-background focus-visible:ring-2 focus-visible:ring-ring"
           />
           {searchQuery && (
             <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground px-1 py-0.5 rounded"
+              type="button"
+              onClick={handleClearSearch}
+              aria-label="Limpar campo de busca"
+              className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-sm font-bold text-muted-foreground hover:text-foreground rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               ×
             </button>
@@ -314,9 +341,14 @@ export default function MaquinaDetail() {
           </span>
         </div>
 
-        {/* STATE 1: LOADING (Skeleton cards) */}
+        {/* STATE 1: LOADING (Skeleton cards with role="status") */}
         {loading && (
-          <div className="space-y-4 animate-fade-in">
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="Carregando ordens de serviço da máquina"
+            className="space-y-4 animate-page-fade"
+          >
             {[1, 2, 3].map((idx) => (
               <Card key={idx} className="p-5 border-border shadow-sm space-y-4">
                 <div className="flex items-start justify-between gap-4">
@@ -332,10 +364,11 @@ export default function MaquinaDetail() {
                 <Skeleton className="h-14 w-full rounded-md" />
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-8 w-24 rounded-md" />
+                  <Skeleton className="h-11 w-32 rounded-md" />
                 </div>
               </Card>
             ))}
+            <span className="sr-only">Carregando fila de produção...</span>
           </div>
         )}
 
@@ -592,45 +625,55 @@ function QueueCard({ item, position, isUpdating, onUpdateStatus }: QueueCardProp
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Action 1: Iniciar (Aguardando -> Em Andamento) */}
+            {/* Action 1: Iniciar (Aguardando -> Em Andamento) touch target h-11 */}
             {item.status === 'aguardando' && (
               <Button
                 size="sm"
                 onClick={() => onUpdateStatus(item.id, 'em_andamento')}
                 disabled={isUpdating}
-                className="gap-1.5 h-8 px-4 text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-xs font-semibold"
+                aria-label={`Iniciar produção do item ${item.itemName}`}
+                className="gap-2 min-h-[44px] h-11 px-5 text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-xs font-semibold focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {isUpdating ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <RefreshCw
+                    className="w-4 h-4 animate-spin"
+                    role="status"
+                    aria-label="Atualizando status..."
+                  />
                 ) : (
-                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <Play className="w-4 h-4 fill-white" aria-hidden="true" />
                 )}
                 <span>Iniciar Produção</span>
               </Button>
             )}
 
-            {/* Action 2: Concluir (Em Andamento -> Concluido) */}
+            {/* Action 2: Concluir (Em Andamento -> Concluido) touch target h-11 */}
             {item.status === 'em_andamento' && (
               <Button
                 size="sm"
                 onClick={() => onUpdateStatus(item.id, 'concluido')}
                 disabled={isUpdating}
-                className="gap-1.5 h-8 px-4 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs font-semibold"
+                aria-label={`Concluir operação do item ${item.itemName}`}
+                className="gap-2 min-h-[44px] h-11 px-5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs font-semibold focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {isUpdating ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <RefreshCw
+                    className="w-4 h-4 animate-spin"
+                    role="status"
+                    aria-label="Atualizando status..."
+                  />
                 ) : (
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                 )}
                 <span>Concluir Operação</span>
               </Button>
             )}
 
-            {/* Completed state badge & re-open option */}
+            {/* Completed state badge & re-open option with h-11 */}
             {item.status === 'concluido' && (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 py-1">
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                   Operação Finalizada
                 </span>
                 <Button
@@ -638,11 +681,16 @@ function QueueCard({ item, position, isUpdating, onUpdateStatus }: QueueCardProp
                   variant="ghost"
                   onClick={() => onUpdateStatus(item.id, 'em_andamento')}
                   disabled={isUpdating}
-                  className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+                  className="min-h-[44px] h-11 px-3 text-xs text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={`Reabrir operação do item ${item.itemName}`}
                   title="Reabrir operação"
                 >
                   {isUpdating ? (
-                    <RefreshCw className="w-3 h-3 animate-spin" />
+                    <RefreshCw
+                      className="w-3.5 h-3.5 animate-spin"
+                      role="status"
+                      aria-label="Atualizando..."
+                    />
                   ) : (
                     <span>Reabrir</span>
                   )}

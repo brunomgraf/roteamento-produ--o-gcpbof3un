@@ -186,9 +186,10 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
                 variant="outline"
                 size="sm"
                 onClick={addStep}
-                className="h-8 gap-1 text-xs"
+                aria-label="Adicionar nova etapa de fabricação"
+                className="min-h-[44px] h-11 px-4 gap-1.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <Plus className="w-3.5 h-3.5" /> Adicionar Etapa
+                <Plus className="w-4 h-4" aria-hidden="true" /> Adicionar Etapa
               </Button>
             </div>
 
@@ -244,9 +245,10 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
                         variant="ghost"
                         size="icon"
                         onClick={() => removeStep(idx)}
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        aria-label={`Remover etapa ${idx + 1}`}
+                        className="min-h-[44px] min-w-[44px] h-11 w-11 text-destructive hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
                   </div>
@@ -277,9 +279,10 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
                 variant="outline"
                 size="sm"
                 onClick={addMaterial}
-                className="h-8 gap-1 text-xs"
+                aria-label="Adicionar novo item de compra de matéria-prima"
+                className="min-h-[44px] h-11 px-4 gap-1.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <Plus className="w-3.5 h-3.5" /> Adicionar Compra
+                <Plus className="w-4 h-4" aria-hidden="true" /> Adicionar Compra
               </Button>
             </div>
 
@@ -332,9 +335,10 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
                         variant="ghost"
                         size="icon"
                         onClick={() => removeMaterial(idx)}
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        aria-label={`Remover compra de material ${mat.material_name || idx + 1}`}
+                        className="min-h-[44px] min-w-[44px] h-11 w-11 text-destructive hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
                   </div>
@@ -355,9 +359,10 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
                 variant="outline"
                 size="sm"
                 onClick={addOutsourced}
-                className="h-8 gap-1 text-xs"
+                aria-label="Adicionar novo serviço terceirizado"
+                className="min-h-[44px] h-11 px-4 gap-1.5 text-xs font-medium focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <Plus className="w-3.5 h-3.5" /> Adicionar Terceirizado
+                <Plus className="w-4 h-4" aria-hidden="true" /> Adicionar Terceirizado
               </Button>
             </div>
 
@@ -409,9 +414,10 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
                         variant="ghost"
                         size="icon"
                         onClick={() => removeOutsourced(idx)}
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        aria-label={`Remover serviço terceirizado ${srv.service_description || idx + 1}`}
+                        className="min-h-[44px] min-w-[44px] h-11 w-11 text-destructive hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
                   </div>
@@ -421,11 +427,22 @@ export function EditRoutingDialog({ open, onOpenChange, routing, onSave }: EditR
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="gap-2 sm:gap-0 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            aria-label="Cancelar e fechar diálogo de edição"
+            className="min-h-[44px] h-11 px-5 focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Cancelar
           </Button>
-          <Button type="button" onClick={handleSave}>
+          <Button
+            type="button"
+            onClick={handleSave}
+            aria-label="Salvar alterações no roteamento"
+            className="min-h-[44px] h-11 px-5 font-semibold focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Salvar Alterações
           </Button>
         </DialogFooter>

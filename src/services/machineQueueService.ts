@@ -305,8 +305,9 @@ export async function getMachineQueue(machineType: string): Promise<MachineQueue
 
   try {
     // 1. Query routing steps for this machine_type ordered by step_order, expanding the parent item
+    // Filter by machine_type or matching sector
     const steps = await pb.collection('routing_steps').getFullList({
-      filter: `machine_type = "${normalizedType}"`,
+      filter: `machine_type ~ "${normalizedType}" || sector ~ "${normalizedType}"`,
       sort: 'step_order,created',
       expand: 'item_id',
     })

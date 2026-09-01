@@ -159,13 +159,19 @@ export default function NovoItem() {
   const isFormDisabled = isGenerating || isSaving
 
   return (
-    <div className="space-y-6 pb-20 md:pb-8 animate-fade-in max-w-7xl mx-auto">
+    <div className="space-y-6 pb-20 md:pb-8 animate-page-fade max-w-7xl mx-auto">
       {/* 1. Header with back button, Title, Etapa 1 Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
         <div className="flex items-center gap-3">
-          <Button asChild variant="outline" size="icon" className="h-9 w-9 shrink-0">
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="min-h-[44px] min-w-[44px] h-11 w-11 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Voltar ao Dashboard"
+          >
             <Link to="/" title="Voltar ao Dashboard">
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </Link>
           </Button>
           <div>
@@ -193,16 +199,18 @@ export default function NovoItem() {
               size="sm"
               onClick={() => setIsEditDialogOpen(true)}
               disabled={isFormDisabled}
-              className="gap-1.5 h-11 bg-secondary text-secondary-foreground"
+              aria-label="Abrir modal para editar o roteamento gerado"
+              className="gap-1.5 min-h-[44px] h-11 px-4 bg-secondary text-secondary-foreground font-medium focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Edit3 className="w-4 h-4" />
+              <Edit3 className="w-4 h-4" aria-hidden="true" />
               Editar Roteamento
             </Button>
             <Button
               type="button"
               onClick={handleConfirmAndSave}
               disabled={isFormDisabled}
-              className={`gap-2 h-11 rounded-lg text-white font-semibold shadow-sm transition-all duration-200 ${
+              aria-label="Confirmar e salvar peça e etapas de fabricação no sistema"
+              className={`gap-2 min-h-[44px] h-11 px-5 rounded-lg text-white font-semibold shadow-sm transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring ${
                 saveSuccess
                   ? 'bg-green-500 scale-[1.02] ring-4 ring-green-300 dark:ring-green-800'
                   : 'bg-green-600 hover:bg-green-700'
@@ -210,12 +218,16 @@ export default function NovoItem() {
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2
+                    className="w-4 h-4 animate-spin"
+                    role="status"
+                    aria-label="Salvando..."
+                  />
                   Salvando Item...
                 </>
               ) : (
                 <>
-                  <Check className="w-4 h-4" />
+                  <Check className="w-4 h-4" aria-hidden="true" />
                   Confirmar e Salvar
                 </>
               )}
@@ -355,9 +367,10 @@ export default function NovoItem() {
                       size="icon"
                       onClick={handleRemoveFile}
                       disabled={isFormDisabled}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      aria-label="Remover anexo do desenho técnico"
+                      className="min-h-[44px] min-w-[44px] h-11 w-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-4 h-4" aria-hidden="true" />
                     </Button>
                   </div>
                 )}
@@ -399,18 +412,27 @@ export default function NovoItem() {
                   type="button"
                   onClick={handleGenerate}
                   disabled={!itemName.trim() || isFormDisabled}
-                  className={`h-12 w-full bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                  aria-label={
+                    routing
+                      ? 'Gerar novamente o roteamento com inteligência artificial'
+                      : 'Gerar roteamento de fabricação com inteligência artificial'
+                  }
+                  className={`min-h-[44px] h-12 w-full bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-ring ${
                     routing ? 'animate-pulse' : ''
                   }`}
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2
+                        className="w-5 h-5 animate-spin"
+                        role="status"
+                        aria-label="Gerando roteamento..."
+                      />
                       Engenheiro IA analisando e gerando roteamento...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5" />
+                      <Sparkles className="w-5 h-5" aria-hidden="true" />
                       {routing ? 'Gerar Novamente' : 'Gerar Roteamento com IA'}
                     </>
                   )}
@@ -423,7 +445,8 @@ export default function NovoItem() {
                       type="button"
                       onClick={handleConfirmAndSave}
                       disabled={isFormDisabled}
-                      className={`h-11 rounded-lg text-white font-semibold flex-1 flex items-center justify-center gap-2 transition-all duration-200 ${
+                      aria-label="Confirmar e gravar peça no sistema"
+                      className={`min-h-[44px] h-11 rounded-lg text-white font-semibold flex-1 flex items-center justify-center gap-2 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring ${
                         saveSuccess
                           ? 'bg-green-500 scale-[1.02] ring-4 ring-green-300 dark:ring-green-800'
                           : 'bg-green-600 hover:bg-green-700'
@@ -431,12 +454,16 @@ export default function NovoItem() {
                     >
                       {isSaving ? (
                         <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <Loader2
+                            className="w-5 h-5 animate-spin"
+                            role="status"
+                            aria-label="Gravando peça..."
+                          />
                           Gravando Peça no Sistema...
                         </>
                       ) : (
                         <>
-                          <Check className="w-5 h-5" />
+                          <Check className="w-5 h-5" aria-hidden="true" />
                           Confirmar e Salvar
                         </>
                       )}
@@ -447,9 +474,10 @@ export default function NovoItem() {
                       variant="secondary"
                       onClick={() => setIsEditDialogOpen(true)}
                       disabled={isFormDisabled}
-                      className="h-11 bg-secondary text-secondary-foreground rounded-lg font-medium flex-1 flex items-center justify-center gap-1.5"
+                      aria-label="Editar o roteamento gerado"
+                      className="min-h-[44px] h-11 bg-secondary text-secondary-foreground rounded-lg font-medium flex-1 flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <Edit3 className="w-4 h-4" aria-hidden="true" />
                       Editar Roteamento
                     </Button>
 
@@ -458,9 +486,10 @@ export default function NovoItem() {
                       variant="ghost"
                       onClick={handleGenerate}
                       disabled={isFormDisabled}
-                      className="h-11 bg-transparent text-primary underline hover:bg-primary/5 rounded-lg font-medium flex items-center justify-center gap-1.5"
+                      aria-label="Gerar novamente o roteamento com IA"
+                      className="min-h-[44px] h-11 bg-transparent text-primary underline hover:bg-primary/5 rounded-lg font-medium flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <RefreshCw className="w-4 h-4" />
+                      <RefreshCw className="w-4 h-4" aria-hidden="true" />
                       Gerar Novamente
                     </Button>
                   </div>
@@ -488,9 +517,10 @@ export default function NovoItem() {
                 size="sm"
                 onClick={() => setIsEditDialogOpen(true)}
                 disabled={isFormDisabled}
-                className="text-xs gap-1 text-primary hover:text-primary"
+                aria-label="Editar etapas do fluxo de fabricação"
+                className="min-h-[44px] h-11 px-3 text-xs gap-1.5 text-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring font-medium"
               >
-                <Edit3 className="w-3.5 h-3.5" /> Editar
+                <Edit3 className="w-4 h-4" aria-hidden="true" /> Editar
               </Button>
             )}
           </div>

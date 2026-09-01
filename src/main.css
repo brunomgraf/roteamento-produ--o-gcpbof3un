@@ -105,6 +105,17 @@
 }
 
 @layer utilities {
+  @keyframes fade-in-stagger {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* KEEP ALL THE ANIMATIONS CLASSES THAT ARE USED BELOW */
   @keyframes accordion-down {
     from {
@@ -267,5 +278,9 @@
 
   .animate-spotlight {
     animation: spotlight 2s ease forwards;
+  }
+
+  .animate-fade-in-stagger {
+    animation: fade-in-stagger 300ms ease-out forwards;
   }
 }

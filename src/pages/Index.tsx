@@ -1,88 +1,350 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { PlusCircle, Cpu, Cog, Layers, Gauge } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Plus, Cpu, Cog, Layers, Gauge } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@/components/ui/table'
 
-const machines = [
+interface MachineInfo {
+  type: 'torno' | 'fresa' | 'cnc' | 'retifica'
+  name: string
+  desc: string
+  icon: React.ElementType
+  iconColor: string
+  iconBg: string
+  stats: {
+    naFila: number
+    emAndamento: number
+    concluidos: number
+  }
+}
+
+const machines: MachineInfo[] = [
   {
     type: 'torno',
-    name: 'Torno Mecânico / CNC',
+    name: 'Torno',
     desc: 'Usinagem de eixos, roscas, furações axiais e peças cilíndricas.',
     icon: Cog,
+    iconColor: 'text-blue-500',
+    iconBg: 'bg-blue-500/10',
+    stats: {
+      naFila: 4,
+      emAndamento: 2,
+      concluidos: 12,
+    },
   },
   {
     type: 'fresa',
-    name: 'Fresadora Convencional / CNC',
+    name: 'Fresa',
     desc: 'Usinagem de faces planas, ranhuras, bolsões e engrenagens.',
     icon: Layers,
+    iconColor: 'text-amber-500',
+    iconBg: 'bg-amber-500/10',
+    stats: {
+      naFila: 3,
+      emAndamento: 1,
+      concluidos: 9,
+    },
   },
   {
     type: 'cnc',
-    name: 'Centro de Usinagem CNC',
+    name: 'CNC',
     desc: 'Operações complexas multieixo de alta precisão e repetibilidade.',
     icon: Cpu,
+    iconColor: 'text-violet-500',
+    iconBg: 'bg-violet-500/10',
+    stats: {
+      naFila: 6,
+      emAndamento: 3,
+      concluidos: 15,
+    },
   },
   {
     type: 'retifica',
-    name: 'Retífica Plana e Cilíndrica',
+    name: 'Retífica',
     desc: 'Acabamento fino, tolerâncias micrométricas e superfícies espelhadas.',
     icon: Gauge,
+    iconColor: 'text-green-500',
+    iconBg: 'bg-green-500/10',
+    stats: {
+      naFila: 2,
+      emAndamento: 1,
+      concluidos: 8,
+    },
   },
 ]
 
+type SectorType = 'Torno' | 'Fresa' | 'CNC' | 'Retifica' | 'Terceirizado' | 'Compra'
+type StatusType = 'Aguardando' | 'Em Producao' | 'Concluido' | 'Com Material'
+
+interface RecentItem {
+  id: string
+  code: string
+  name: string
+  setor: SectorType
+  status: StatusType
+  data: string
+}
+
+const recentItems: RecentItem[] = [
+  {
+    id: '1',
+    code: 'ORD-1042',
+    name: 'Eixo Principal de Transmissão Ø45mm',
+    setor: 'Torno',
+    status: 'Em Producao',
+    data: 'Hoje, 10:30',
+  },
+  {
+    id: '2',
+    code: 'ORD-1041',
+    name: 'Placa Base com Canais T e Furações',
+    setor: 'Fresa',
+    status: 'Aguardando',
+    data: 'Hoje, 09:15',
+  },
+  {
+    id: '3',
+    code: 'ORD-1040',
+    name: 'Flange de Fixação Multieixo CNC',
+    setor: 'CNC',
+    status: 'Em Producao',
+    data: 'Hoje, 08:45',
+  },
+  {
+    id: '4',
+    code: 'ORD-1039',
+    name: 'Guia Linear de Precisão Micrométrica',
+    setor: 'Retifica',
+    status: 'Concluido',
+    data: 'Ontem, 17:20',
+  },
+  {
+    id: '5',
+    code: 'ORD-1038',
+    name: 'Tratamento Térmico por Indução (Nitretação)',
+    setor: 'Terceirizado',
+    status: 'Com Material',
+    data: 'Ontem, 15:40',
+  },
+  {
+    id: '6',
+    code: 'ORD-1037',
+    name: 'Bloco de Alumínio 7075 T651 (Tarugo)',
+    setor: 'Compra',
+    status: 'Concluido',
+    data: 'Ontem, 14:10',
+  },
+  {
+    id: '7',
+    code: 'ORD-1036',
+    name: 'Bucha Cônica de Ajuste com Rosca M24',
+    setor: 'Torno',
+    status: 'Aguardando',
+    data: 'Ontem, 11:05',
+  },
+]
+
+const sectorChipClasses: Record<SectorType, string> = {
+  Torno: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+  Fresa: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  CNC: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
+  Retifica: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+  Terceirizado: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+  Compra: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+}
+
+const statusBadgeClasses: Record<StatusType, string> = {
+  Aguardando: 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300',
+  'Em Producao': 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+  Concluido: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+  'Com Material': 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+}
+
 export default function Index() {
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 pb-16 md:pb-0">
       {/* Cabeçalho da Página */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Dashboard de Produção
-          </h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Dashboard de Produção</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Visão geral de todas as máquinas, fluxo operacional e controle da fábrica.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button asChild className="gap-2 shadow-sm">
+
+        {/* Botão de Ação Rápida no Desktop */}
+        <div className="hidden md:flex items-center gap-3">
+          <Button asChild size="lg" className="gap-2 shadow-sm">
             <Link to="/novo-item">
-              <PlusCircle className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               Novo Item
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Grid de Máquinas */}
+      {/* Stat Cards (resumo de máquinas) */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">
-          Máquinas e Centros de Trabalho
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          Resumo das Máquinas
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {machines.map((m) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {machines.map((m, index) => {
             const Icon = m.icon
+            const delay = `${index * 50}ms`
             return (
               <Card
                 key={m.type}
-                className="hover:shadow-md transition-all duration-200 flex flex-col justify-between border-border"
+                style={{
+                  animationDelay: delay,
+                  animationFillMode: 'backwards',
+                }}
+                className="p-5 border-border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 animate-fade-in-stagger flex flex-col justify-between"
               >
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
-                    <Icon className="w-6 h-6" />
+                <div>
+                  <div className="flex items-start justify-between mb-3">
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${m.iconBg} ${m.iconColor}`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
                   </div>
-                  <CardTitle className="text-lg font-semibold">{m.name}</CardTitle>
-                  <CardDescription className="text-sm line-clamp-2">{m.desc}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Button asChild variant="outline" className="w-full justify-center">
-                    <Link to={`/maquina/${m.type}`}>Ver Fila de Trabalho</Link>
+
+                  <CardHeader className="p-0 mb-3 space-y-1">
+                    <CardTitle className="text-lg font-semibold text-foreground">
+                      {m.name}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{m.desc}</p>
+                  </CardHeader>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  {/* Stats em linha flex com badges */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border">
+                    <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                      <span>Fila:</span>
+                      <strong className="font-bold">{m.stats.naFila}</strong>
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                      <span>Andamento:</span>
+                      <strong className="font-bold">{m.stats.emAndamento}</strong>
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">
+                      <span>Concluídos:</span>
+                      <strong className="font-bold">{m.stats.concluidos}</strong>
+                    </span>
+                  </div>
+
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center text-xs mt-2"
+                  >
+                    <Link to={`/maquina/${m.type}`}>Ver Detalhes</Link>
                   </Button>
-                </CardContent>
+                </div>
               </Card>
             )
           })}
         </div>
+      </div>
+
+      {/* Tabela de Itens Recentes */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">Itens Recentes</h2>
+            <p className="text-xs text-muted-foreground">
+              Últimas ordens de fabricação e movimentações nos setores
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card overflow-hidden shadow-sm">
+          <Table>
+            <TableHeader className="bg-muted">
+              <TableRow className="hover:bg-muted/80 border-b border-border">
+                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                  Código
+                </TableHead>
+                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                  Descrição do Item
+                </TableHead>
+                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                  Setor
+                </TableHead>
+                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                  Status
+                </TableHead>
+                <TableHead className="text-xs uppercase text-muted-foreground font-semibold text-right">
+                  Atualização
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentItems.map((item, index) => {
+                const rowDelay = `${200 + index * 40}ms`
+                return (
+                  <TableRow
+                    key={item.id}
+                    style={{
+                      animationDelay: rowDelay,
+                      animationFillMode: 'backwards',
+                    }}
+                    className="border-b border-border hover:bg-muted/50 transition-colors animate-fade-in-stagger"
+                  >
+                    <TableCell className="font-mono text-xs font-semibold text-foreground py-3">
+                      {item.code}
+                    </TableCell>
+                    <TableCell className="text-sm font-medium text-foreground py-3">
+                      {item.name}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${sectorChipClasses[item.setor]}`}
+                      >
+                        {item.setor}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[item.status]}`}
+                      >
+                        {item.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground py-3">
+                      {item.data}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Botão de Ação Rápida Fixo no Mobile */}
+      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+        <Button
+          asChild
+          size="lg"
+          className="rounded-full shadow-lg gap-2 h-14 px-6 text-base font-semibold"
+        >
+          <Link to="/novo-item">
+            <Plus className="w-6 h-6" />
+            Novo Item
+          </Link>
+        </Button>
       </div>
     </div>
   )

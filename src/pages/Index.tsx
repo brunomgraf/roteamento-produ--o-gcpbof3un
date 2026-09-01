@@ -1,8 +1,23 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Cpu, Cog, Layers, Gauge, ChevronDown, CheckCircle2, Clock, Play } from 'lucide-react'
+import {
+  Plus,
+  Cpu,
+  Cog,
+  Layers,
+  Gauge,
+  Wrench,
+  Factory,
+  ChevronDown,
+  CheckCircle2,
+  Clock,
+  Play,
+  RotateCw,
+  AlertTriangle,
+} from 'lucide-react'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableHeader,
@@ -11,9 +26,56 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/table'
+import pb from '@/lib/pocketbase/client'
+import type { Machine } from '@/types/machine'
+import { normalizeStatus } from '@/services/machineQueueService'
 
-interface MachineInfo {
-  type: 'torno' | 'fresa' | 'cnc' | 'retifica'
+const ICON_MAP: Record<string, React.ElementType> = {
+  Cog,
+  Layers,
+  Cpu,
+  Gauge,
+  Wrench,
+  Factory,
+}
+
+function getIconComponent(iconName?: string): React.ElementType {
+  if (!iconName) return Cog
+  return ICON_MAP[iconName] || Cog
+}
+
+const COLOR_STYLES_MAP: Record<string, { text: string; bg: string }> = {
+  blue: { text: 'text-blue-500 dark:text-blue-400', bg: 'bg-blue-500/10 dark:bg-blue-500/20' },
+  amber: { text: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-500/10 dark:bg-amber-500/20' },
+  violet: {
+    text: 'text-violet-500 dark:text-violet-400',
+    bg: 'bg-violet-500/10 dark:bg-violet-500/20',
+  },
+  green: { text: 'text-green-500 dark:text-green-400', bg: 'bg-green-500/10 dark:bg-green-500/20' },
+  red: { text: 'text-red-500 dark:text-red-400', bg: 'bg-red-500/10 dark:bg-red-500/20' },
+  orange: {
+    text: 'text-orange-500 dark:text-orange-400',
+    bg: 'bg-orange-500/10 dark:bg-orange-500/20',
+  },
+  pink: { text: 'text-pink-500 dark:text-pink-400', bg: 'bg-pink-500/10 dark:bg-pink-500/20' },
+  cyan: { text: 'text-cyan-500 dark:text-cyan-400', bg: 'bg-cyan-500/10 dark:bg-cyan-500/20' },
+}
+
+function getColorStyles(color?: string) {
+  const c = (color || 'blue').toLowerCase()
+  return COLOR_STYLES_MAP[c] || COLOR_STYLES_MAP.blue
+}
+
+const DEFAULT_DESCRIPTIONS: Record<string, string> = {
+  torno: 'Usinagem de eixos, roscas, furações axiais e peças cilíndricas.',
+  fresa: 'Usinagem de faces planas, ranhuras, bolsões e engrenagens.',
+  cnc: 'Operações complexas multieixo de alta precisão e repetibilidade.',
+  retifica: 'Acabamento fino, tolerâncias micrométricas e superfícies espelhadas.',
+}
+
+interface DynamicMachineCard {
+  id: string
+  slug: string
   name: string
   desc: string
   icon: React.ElementType
@@ -25,61 +87,6 @@ interface MachineInfo {
     concluidos: number
   }
 }
-
-const machines: MachineInfo[] = [
-  {
-    type: 'torno',
-    name: 'Torno',
-    desc: 'Usinagem de eixos, roscas, furações axiais e peças cilíndricas.',
-    icon: Cog,
-    iconColor: 'text-blue-500',
-    iconBg: 'bg-blue-500/10',
-    stats: {
-      naFila: 4,
-      emAndamento: 2,
-      concluidos: 12,
-    },
-  },
-  {
-    type: 'fresa',
-    name: 'Fresa',
-    desc: 'Usinagem de faces planas, ranhuras, bolsões e engrenagens.',
-    icon: Layers,
-    iconColor: 'text-amber-500',
-    iconBg: 'bg-amber-500/10',
-    stats: {
-      naFila: 3,
-      emAndamento: 1,
-      concluidos: 9,
-    },
-  },
-  {
-    type: 'cnc',
-    name: 'CNC',
-    desc: 'Operações complexas multieixo de alta precisão e repetibilidade.',
-    icon: Cpu,
-    iconColor: 'text-violet-500',
-    iconBg: 'bg-violet-500/10',
-    stats: {
-      naFila: 6,
-      emAndamento: 3,
-      concluidos: 15,
-    },
-  },
-  {
-    type: 'retifica',
-    name: 'Retífica',
-    desc: 'Acabamento fino, tolerâncias micrométricas e superfícies espelhadas.',
-    icon: Gauge,
-    iconColor: 'text-green-500',
-    iconBg: 'bg-green-500/10',
-    stats: {
-      naFila: 2,
-      emAndamento: 1,
-      concluidos: 8,
-    },
-  },
-]
 
 type SectorType = 'Torno' | 'Fresa' | 'CNC' | 'Retifica' | 'Terceirizado' | 'Compra'
 type StatusType = 'Aguardando' | 'Em Producao' | 'Concluido' | 'Com Material'
@@ -236,10 +243,93 @@ const PAGE_SIZE = 10
 
 export default function Index() {
   const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE)
+  const [machinesData, setMachinesData] = useState<DynamicMachineCard[]>([])
+  const [loadingMachines, setLoadingMachines] = useState<boolean>(true)
+  const [machinesError, setMachinesError] = useState<string | null>(null)
+
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setLoadingMachines(true)
+      setMachinesError(null)
+
+      // 1. Fetch active machines from PocketBase
+      const activeMachines = await pb.collection('machines').getFullList<Machine>({
+        filter: 'active = true',
+        sort: '+created',
+      })
+
+      // 2. Fetch all routing steps
+      const routingSteps = await pb.collection('routing_steps').getFullList({
+        fields: 'id,machine_type,status,updated,created',
+      })
+
+      // Helper for "today" in local date string format YYYY-MM-DD
+      const now = new Date()
+      const todayYear = now.getFullYear()
+      const todayMonth = now.getMonth()
+      const todayDate = now.getDate()
+
+      const isToday = (dateStr?: string) => {
+        if (!dateStr) return false
+        const d = new Date(dateStr)
+        return (
+          d.getFullYear() === todayYear && d.getMonth() === todayMonth && d.getDate() === todayDate
+        )
+      }
+
+      // 3. Compute stats per machine
+      const calculatedCards: DynamicMachineCard[] = activeMachines.map((m) => {
+        const slug = m.slug?.toLowerCase().trim() || ''
+        const mSteps = routingSteps.filter(
+          (step) => (step.machine_type || '').toLowerCase().trim() === slug,
+        )
+
+        const naFila = mSteps.filter((s) => normalizeStatus(s.status) === 'aguardando').length
+        const emAndamento = mSteps.filter(
+          (s) => normalizeStatus(s.status) === 'em_andamento',
+        ).length
+        const concluidos = mSteps.filter((s) => {
+          if (normalizeStatus(s.status) !== 'concluido') return false
+          const timestamp = s.updated || s.created
+          return isToday(timestamp)
+        }).length
+
+        const colorStyles = getColorStyles(m.color)
+        const iconComp = getIconComponent(m.icon)
+        const desc = DEFAULT_DESCRIPTIONS[slug] || `Estação de trabalho operacional para ${m.name}.`
+
+        return {
+          id: m.id,
+          slug: m.slug,
+          name: m.name,
+          desc,
+          icon: iconComp,
+          iconColor: colorStyles.text,
+          iconBg: colorStyles.bg,
+          stats: {
+            naFila,
+            emAndamento,
+            concluidos,
+          },
+        }
+      })
+
+      setMachinesData(calculatedCards)
+    } catch (err: any) {
+      console.error('Erro ao carregar dados do dashboard:', err)
+      setMachinesError(err?.message || 'Falha ao carregar os dados das máquinas.')
+    } finally {
+      setLoadingMachines(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [loadDashboardData])
 
   // Memoized machine calculations and aggregated stats for performance
   const machineTotals = useMemo(() => {
-    return machines.reduce(
+    return machinesData.reduce(
       (acc, machine) => {
         return {
           totalFila: acc.totalFila + machine.stats.naFila,
@@ -249,14 +339,7 @@ export default function Index() {
       },
       { totalFila: 0, totalEmAndamento: 0, totalConcluidos: 0 },
     )
-  }, [])
-
-  const machineList = useMemo(() => {
-    return machines.map((m) => ({
-      ...m,
-      totalOperacoes: m.stats.naFila + m.stats.emAndamento + m.stats.concluidos,
-    }))
-  }, [])
+  }, [machinesData])
 
   // Pagination for recent items: 10 per page with "Carregar mais"
   const visibleItems = useMemo(() => {
@@ -302,86 +385,165 @@ export default function Index() {
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
             Resumo das Máquinas
           </h2>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400">
-              <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-              Total na Fila: {machineTotals.totalFila}
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1 font-medium text-blue-700 dark:text-blue-400">
-              <Play className="w-3.5 h-3.5" aria-hidden="true" />
-              Em Andamento: {machineTotals.totalEmAndamento}
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-400">
-              <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-              Concluídos: {machineTotals.totalConcluidos}
-            </span>
-          </div>
+          {!loadingMachines && !machinesError && machinesData.length > 0 && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400">
+                <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+                Total na Fila: {machineTotals.totalFila}
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1 font-medium text-blue-700 dark:text-blue-400">
+                <Play className="w-3.5 h-3.5" aria-hidden="true" />
+                Em Andamento: {machineTotals.totalEmAndamento}
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-400">
+                <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                Concluídos: {machineTotals.totalConcluidos}
+              </span>
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {machineList.map((m, index) => {
-            const Icon = m.icon
-            const delay = `${index * 50}ms`
-            return (
-              <Card
-                key={m.type}
-                style={{
-                  animationDelay: delay,
-                  animationFillMode: 'backwards',
-                }}
-                className="p-5 border-border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 animate-fade-in-stagger flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between mb-3">
-                    <div
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${m.iconBg} ${m.iconColor}`}
-                      aria-hidden="true"
-                    >
-                      <Icon className="w-5 h-5" />
-                    </div>
-                  </div>
-
-                  <CardHeader className="p-0 mb-3 space-y-1">
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {m.name}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{m.desc}</p>
-                  </CardHeader>
+        {/* Loading State */}
+        {loadingMachines && (
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="Carregando resumo das máquinas"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="p-5 border-border shadow-xs space-y-4">
+                <div className="flex items-start justify-between">
+                  <Skeleton className="w-9 h-9 rounded-lg" />
                 </div>
-
-                <div className="space-y-3 pt-2">
-                  {/* Stats em linha flex com badges */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border">
-                    <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                      <span>Fila:</span>
-                      <strong className="font-bold">{m.stats.naFila}</strong>
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
-                      <span>Andamento:</span>
-                      <strong className="font-bold">{m.stats.emAndamento}</strong>
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">
-                      <span>Concluídos:</span>
-                      <strong className="font-bold">{m.stats.concluidos}</strong>
-                    </span>
-                  </div>
-
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-center text-xs mt-2 min-h-[44px] h-11 focus-visible:ring-2 focus-visible:ring-ring font-medium"
-                    aria-label={`Ver detalhes da fila da máquina ${m.name}`}
-                  >
-                    <Link to={`/maquina/${m.type}`}>Ver Detalhes</Link>
-                  </Button>
+                <div className="space-y-1.5">
+                  <Skeleton className="h-5 w-28" />
+                  <Skeleton className="h-3 w-full" />
+                </div>
+                <div className="pt-2 border-t border-border space-y-2">
+                  <Skeleton className="h-6 w-full rounded-full" />
+                  <Skeleton className="h-11 w-full rounded-md" />
                 </div>
               </Card>
-            )
-          })}
-        </div>
+            ))}
+            <span className="sr-only">Carregando máquinas...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {!loadingMachines && machinesError && (
+          <Card className="border-destructive/30 bg-destructive/5 p-6 text-center max-w-lg mx-auto space-y-3">
+            <div className="w-10 h-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-5 h-5" aria-hidden="true" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-foreground">Erro ao carregar máquinas</h3>
+              <p className="text-xs text-muted-foreground">{machinesError}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadDashboardData}
+              className="gap-2 min-h-[44px] h-11 px-4 text-xs font-medium"
+            >
+              <RotateCw className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Tentar novamente</span>
+            </Button>
+          </Card>
+        )}
+
+        {/* Empty State */}
+        {!loadingMachines && !machinesError && machinesData.length === 0 && (
+          <Card className="border-dashed border-2 border-border p-10 text-center max-w-md mx-auto space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+              <Factory className="w-6 h-6" aria-hidden="true" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-foreground">Nenhuma máquina cadastrada</h3>
+              <p className="text-xs text-muted-foreground">
+                Cadastre máquinas e estações de trabalho para visualizar as estatísticas de
+                produção.
+              </p>
+            </div>
+            <Button
+              asChild
+              className="gap-2 min-h-[44px] h-11 px-5 shadow-sm text-xs font-semibold"
+            >
+              <Link to="/maquinas">
+                <Plus className="w-4 h-4" aria-hidden="true" />
+                <span>Cadastrar Máquina</span>
+              </Link>
+            </Button>
+          </Card>
+        )}
+
+        {/* Dynamic Machine Cards */}
+        {!loadingMachines && !machinesError && machinesData.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {machinesData.map((m, index) => {
+              const Icon = m.icon
+              const delay = `${index * 50}ms`
+              return (
+                <Card
+                  key={m.id || m.slug}
+                  style={{
+                    animationDelay: delay,
+                    animationFillMode: 'backwards',
+                  }}
+                  className="p-5 border-border transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 animate-fade-in-stagger flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-start justify-between mb-3">
+                      <div
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${m.iconBg} ${m.iconColor}`}
+                        aria-hidden="true"
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    <CardHeader className="p-0 mb-3 space-y-1">
+                      <CardTitle className="text-lg font-semibold text-foreground">
+                        {m.name}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{m.desc}</p>
+                    </CardHeader>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    {/* Stats em linha flex com badges */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border">
+                      <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                        <span>Fila:</span>
+                        <strong className="font-bold">{m.stats.naFila}</strong>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                        <span>Andamento:</span>
+                        <strong className="font-bold">{m.stats.emAndamento}</strong>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 font-medium bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">
+                        <span>Concluídos:</span>
+                        <strong className="font-bold">{m.stats.concluidos}</strong>
+                      </span>
+                    </div>
+
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-center text-xs mt-2 min-h-[44px] h-11 focus-visible:ring-2 focus-visible:ring-ring font-medium"
+                      aria-label={`Ver detalhes da fila da máquina ${m.name}`}
+                    >
+                      <Link to={`/maquina/${m.slug}`}>Ver Detalhes</Link>
+                    </Button>
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Tabela de Itens Recentes com Paginação */}

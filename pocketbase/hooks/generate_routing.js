@@ -20,10 +20,18 @@ routerAdd('POST', '/backend/v1/generate-routing', (e) => {
 
     const description = typeof body.description === 'string' ? body.description.trim() : ''
     const drawingUrl = typeof body.drawing_url === 'string' ? body.drawing_url.trim() : ''
+    const machines = Array.isArray(body.machines) ? body.machines : []
 
     // 3. Prepare OpenAI Structured Outputs payload
-    const systemPrompt =
-      'You are a manufacturing engineer expert in machining processes. Analyze the item and generate a production routing plan. The available machines are: Torno (Lathe), Fresa (Milling), CNC, Retifica (Grinding). Determine which sectors the item passes through, in order. Identify if outsourced services are needed (heat treatment, plating, etc). Identify if material purchase is needed. Respond in Portuguese.'
+    let machinesDesc = 'Torno (Lathe), Fresa (Milling), CNC, Retifica (Grinding)'
+    if (machines.length > 0) {
+      machinesDesc = machines
+        .map((m) => (m && m.name ? `${m.name}${m.slug ? ` (${m.slug})` : ''}` : ''))
+        .filter(Boolean)
+        .join(', ')
+    }
+
+    const systemPrompt = `You are a manufacturing engineer expert in machining processes. Analyze the item and generate a production routing plan. The available machines are: ${machinesDesc}. Determine which sectors the item passes through, in order. Identify if outsourced services are needed (heat treatment, plating, etc). Identify if material purchase is needed. Respond in Portuguese.`
 
     // Construct user content parts (text and optional image_url)
     let userContent

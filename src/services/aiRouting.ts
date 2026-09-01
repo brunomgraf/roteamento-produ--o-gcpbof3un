@@ -1,10 +1,13 @@
 import pb from '@/lib/pocketbase/client'
 import type { GeneratedRouting } from '@/types/routing'
 
+import type { Machine } from '@/types/machine'
+
 export interface GenerateRoutingParams {
   item_name: string
   description?: string
   drawing_url?: string
+  machines?: Machine[]
 }
 
 export async function callGenerateRoutingAgent(

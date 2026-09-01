@@ -27,113 +27,161 @@ import type {
   GeneratedRouting,
 } from '@/types/routing'
 
+import type { Machine } from '@/types/machine'
+
 interface FlowchartPreviewProps {
   routing: GeneratedRouting | null
   isLoading: boolean
+  machines?: Machine[]
 }
 
-// Helpers for icon and styling based on sector / machine_type
-function getSectorConfig(sector: string, machineType?: string) {
-  const norm = (sector + ' ' + (machineType || '')).toLowerCase()
+const COLOR_BORDER_MAP: Record<string, string> = {
+  blue: 'border-l-blue-500',
+  amber: 'border-l-amber-500',
+  violet: 'border-l-violet-500',
+  purple: 'border-l-purple-500',
+  green: 'border-l-green-500',
+  emerald: 'border-l-emerald-500',
+  red: 'border-l-red-500',
+  orange: 'border-l-orange-500',
+  pink: 'border-l-pink-500',
+  cyan: 'border-l-cyan-500',
+  teal: 'border-l-teal-500',
+  indigo: 'border-l-indigo-500',
+  yellow: 'border-l-yellow-500',
+  zinc: 'border-l-zinc-500',
+  gray: 'border-l-gray-500',
+  slate: 'border-l-slate-500',
+}
 
-  if (norm.includes('torno') || norm.includes('tornear')) {
-    return {
-      icon: Cog,
-      label: sector || 'Torno',
-      borderLeftClass: 'border-l-[4px] border-l-blue-500',
-      bgClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-    }
+const COLOR_BG_MAP: Record<string, string> = {
+  blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+  amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+  violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
+  purple: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+  green: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+  emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+  red: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+  orange: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
+  pink: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
+  cyan: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
+  teal: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
+  indigo: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
+  yellow: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
+  zinc: 'bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20',
+  gray: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20',
+  slate: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20',
+}
+
+function normalizeString(str: string): string {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+// Helpers for icon and styling based on sector / machine_type and registered machines
+function getSectorConfig(sector: string, machineType?: string, machines: Machine[] = []) {
+  const normSector = normalizeString(sector)
+  const normMachineType = normalizeString(machineType || '')
+  const normCombined = `${normSector} ${normMachineType}`
+
+  // Check if sector/machineType matches any registered machine
+  let matchedMachine: Machine | undefined
+  if (machines.length > 0) {
+    matchedMachine = machines.find((m) => {
+      const mName = normalizeString(m.name)
+      const mSlug = normalizeString(m.slug)
+      return (
+        (mName && (normSector === mName || normCombined.includes(mName))) ||
+        (mSlug &&
+          (normSector === mSlug || normMachineType === mSlug || normCombined.includes(mSlug)))
+      )
+    })
   }
-  if (norm.includes('fresa') || norm.includes('fresagem')) {
-    return {
-      icon: Layers,
-      label: sector || 'Fresa',
-      borderLeftClass: 'border-l-[4px] border-l-amber-500',
-      bgClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-    }
-  }
-  if (norm.includes('cnc') || norm.includes('centro de usinagem')) {
-    return {
-      icon: Cpu,
-      label: sector || 'CNC',
-      borderLeftClass: 'border-l-[4px] border-l-violet-500',
-      bgClass: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
-    }
-  }
-  if (norm.includes('retifica') || norm.includes('retífica')) {
-    return {
-      icon: Gauge,
-      label: sector || 'Retífica',
-      borderLeftClass: 'border-l-[4px] border-l-green-500',
-      bgClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-    }
-  }
-  if (norm.includes('terceirizado') || norm.includes('terceiro') || norm.includes('externo')) {
-    return {
-      icon: ExternalLink,
-      label: sector || 'Terceirizado',
-      borderLeftClass: 'border-l-[4px] border-l-red-500',
-      bgClass: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
-    }
-  }
-  if (
-    norm.includes('compra') ||
-    norm.includes('materia') ||
-    norm.includes('matéria') ||
-    norm.includes('aquisicao') ||
-    norm.includes('aquisição')
+
+  // Resolve icon
+  let icon = Wrench
+  if (normCombined.includes('torno') || normCombined.includes('tornear')) {
+    icon = Cog
+  } else if (normCombined.includes('fresa') || normCombined.includes('fresagem')) {
+    icon = Layers
+  } else if (normCombined.includes('cnc') || normCombined.includes('centro de usinagem')) {
+    icon = Cpu
+  } else if (normCombined.includes('retifica')) {
+    icon = Gauge
+  } else if (
+    normCombined.includes('terceirizado') ||
+    normCombined.includes('terceiro') ||
+    normCombined.includes('externo')
   ) {
-    return {
-      icon: ShoppingCart,
-      label: sector || 'Compra',
-      borderLeftClass: 'border-l-[4px] border-l-orange-500',
-      bgClass: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
-    }
-  }
-  if (
-    norm.includes('corte') ||
-    norm.includes('serra') ||
-    norm.includes('plasma') ||
-    norm.includes('laser')
+    icon = ExternalLink
+  } else if (
+    normCombined.includes('compra') ||
+    normCombined.includes('materia') ||
+    normCombined.includes('aquisicao')
   ) {
-    return {
-      icon: Scissors,
-      label: sector || 'Corte / Serra',
-      borderLeftClass: 'border-l-[4px] border-l-cyan-500',
-      bgClass: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
-    }
-  }
-  if (norm.includes('solda') || norm.includes('caldeiraria') || norm.includes('aquecimento')) {
-    return {
-      icon: Flame,
-      label: sector || 'Solda / Caldeiraria',
-      borderLeftClass: 'border-l-[4px] border-l-orange-500',
-      bgClass: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
-    }
-  }
-  if (
-    norm.includes('inspec') ||
-    norm.includes('qualidade') ||
-    norm.includes('metrologia') ||
-    norm.includes('medicao')
+    icon = ShoppingCart
+  } else if (
+    normCombined.includes('corte') ||
+    normCombined.includes('serra') ||
+    normCombined.includes('plasma') ||
+    normCombined.includes('laser')
   ) {
-    return {
-      icon: CheckCircle2,
-      label: sector || 'Inspeção / Qualidade',
-      borderLeftClass: 'border-l-[4px] border-l-teal-500',
-      bgClass: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
-    }
+    icon = Scissors
+  } else if (
+    normCombined.includes('solda') ||
+    normCombined.includes('caldeiraria') ||
+    normCombined.includes('aquecimento')
+  ) {
+    icon = Flame
+  } else if (
+    normCombined.includes('inspec') ||
+    normCombined.includes('qualidade') ||
+    normCombined.includes('metrologia') ||
+    normCombined.includes('medicao')
+  ) {
+    icon = CheckCircle2
+  }
+
+  // Determine border color:
+  // If matched a registered machine, use its color. Fallback for unknown sectors is gray (border-l-gray-500 / border-l-zinc-500).
+  let borderLeftClass = 'border-l-[4px] border-l-gray-400 dark:border-l-gray-600'
+  let bgClass = 'bg-muted text-muted-foreground border-border'
+
+  if (matchedMachine && matchedMachine.color) {
+    const colorKey = matchedMachine.color.toLowerCase()
+    const borderCls = COLOR_BORDER_MAP[colorKey] || 'border-l-blue-500'
+    const bgCls =
+      COLOR_BG_MAP[colorKey] || 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+    borderLeftClass = `border-l-[4px] ${borderCls}`
+    bgClass = bgCls
+  } else if (
+    normCombined.includes('compra') ||
+    normCombined.includes('materia') ||
+    normCombined.includes('aquisicao')
+  ) {
+    borderLeftClass = 'border-l-[4px] border-l-orange-500'
+    bgClass = 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20'
+  } else if (
+    normCombined.includes('terceirizado') ||
+    normCombined.includes('terceiro') ||
+    normCombined.includes('externo')
+  ) {
+    borderLeftClass = 'border-l-[4px] border-l-red-500'
+    bgClass = 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
   }
 
   return {
-    icon: Wrench,
+    icon,
     label: sector || 'Operação Mecânica',
-    borderLeftClass: 'border-l-[4px] border-l-zinc-500',
-    bgClass: 'bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20',
+    borderLeftClass,
+    bgClass,
   }
 }
 
-export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) {
+export function FlowchartPreview({ routing, isLoading, machines = [] }: FlowchartPreviewProps) {
   if (isLoading) {
     return (
       <div
@@ -345,7 +393,7 @@ export function FlowchartPreview({ routing, isLoading }: FlowchartPreviewProps) 
         {/* 2. Routing Steps (Machine operations with step badge and left sector border) */}
         {hasSteps &&
           routing.routing_steps!.map((step: RoutingStep, idx: number) => {
-            const secConfig = getSectorConfig(step.sector, step.machine_type)
+            const secConfig = getSectorConfig(step.sector, step.machine_type, machines)
             const StepIcon = secConfig.icon
             const currentItemIndex = globalStepCounter++
             const isVeryLast = idx === routing.routing_steps!.length - 1 && !hasOutsourced

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -23,6 +23,8 @@ import { FlowchartPreview } from '@/components/routing/FlowchartPreview'
 import { EditRoutingDialog } from '@/components/routing/EditRoutingDialog'
 import { useGenerateRouting } from '@/hooks/useGenerateRouting'
 import { useItemRegistration } from '@/hooks/useItemRegistration'
+import pb from '@/lib/pocketbase/client'
+import type { Machine } from '@/types/machine'
 import type { GeneratedRouting } from '@/types/routing'
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
@@ -45,11 +47,48 @@ export default function NovoItem() {
   // Edit dialog state
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
+  // Machines state
+  const [machines, setMachines] = useState<Machine[]>([])
+  const [isLoadingMachines, setIsLoadingMachines] = useState(true)
+
   // Hooks
   const { isGenerating, routing, generateRouting, setRouting } = useGenerateRouting()
   const { isSaving, saveItem } = useItemRegistration()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // 1. On mount, fetch active machines from machines collection
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchActiveMachines() {
+      try {
+        const records = await pb.collection('machines').getFullList<Machine>({
+          filter: 'active = true',
+          sort: '+created',
+        })
+        if (isMounted) {
+          setMachines(records)
+        }
+      } catch (err) {
+        console.error('Erro ao buscar máquinas ativas:', err)
+        // Fallback to empty or existing state
+        if (isMounted) {
+          setMachines([])
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingMachines(false)
+        }
+      }
+    }
+
+    fetchActiveMachines()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // File handling
   const handleValidateAndSetFile = (file: File) => {
@@ -130,6 +169,7 @@ export default function NovoItem() {
       drawing_url:
         drawingUrl.trim() ||
         (selectedFile ? `Arquivo local anexado: ${selectedFile.name}` : undefined),
+      machines,
     })
   }
 
@@ -438,6 +478,28 @@ export default function NovoItem() {
                   )}
                 </Button>
 
+                {/* Info / Warning line regarding registered machines */}
+                {!isLoadingMachines && (
+                  <div className="pt-0.5">
+                    {machines.length > 0 ? (
+                      <p className="text-xs text-muted-foreground text-center">
+                        A IA considerará {machines.length}{' '}
+                        {machines.length === 1 ? 'máquina cadastrada' : 'máquinas cadastradas'}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
+                        Nenhuma máquina cadastrada.{' '}
+                        <Link
+                          to="/maquinas"
+                          className="font-medium underline hover:text-amber-700 dark:hover:text-amber-300"
+                        >
+                          Cadastre em Máquinas primeiro.
+                        </Link>
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* 2. After Generation Buttons (Confirm, Edit, Regenerate) */}
                 {routing && (
                   <div className="pt-4 border-t border-border animate-fade-in flex flex-col sm:flex-row gap-3 w-full">
@@ -526,7 +588,7 @@ export default function NovoItem() {
           </div>
 
           {/* Flowchart Component */}
-          <FlowchartPreview routing={routing} isLoading={isGenerating} />
+          <FlowchartPreview routing={routing} isLoading={isGenerating} machines={machines} />
         </div>
       </div>
 

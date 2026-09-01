@@ -5,7 +5,6 @@ import {
   Sparkles,
   UploadCloud,
   FileText,
-  Image as ImageIcon,
   X,
   Loader2,
   Check,
@@ -41,6 +40,7 @@ export default function NovoItem() {
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Edit dialog state
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -149,7 +149,10 @@ export default function NovoItem() {
     })
 
     if (success) {
-      navigate('/')
+      setSaveSuccess(true)
+      setTimeout(() => {
+        navigate('/')
+      }, 400)
     }
   }
 
@@ -186,11 +189,11 @@ export default function NovoItem() {
           <div className="hidden sm:flex items-center gap-2">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => setIsEditDialogOpen(true)}
               disabled={isFormDisabled}
-              className="gap-1.5"
+              className="gap-1.5 h-11 bg-secondary text-secondary-foreground"
             >
               <Edit3 className="w-4 h-4" />
               Editar Roteamento
@@ -199,7 +202,11 @@ export default function NovoItem() {
               type="button"
               onClick={handleConfirmAndSave}
               disabled={isFormDisabled}
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-md animate-pulse"
+              className={`gap-2 h-11 rounded-lg text-white font-semibold shadow-sm transition-all duration-200 ${
+                saveSuccess
+                  ? 'bg-green-500 scale-[1.02] ring-4 ring-green-300 dark:ring-green-800'
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
             >
               {isSaving ? (
                 <>
@@ -217,12 +224,12 @@ export default function NovoItem() {
         )}
       </div>
 
-      {/* 2. Two-column Layout (Desktop: grid-cols-2, Mobile: stacked) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      {/* 2. Two-column Layout (Desktop: grid-cols-2 lg:gap-6, Mobile: grid-cols-1 gap-4) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start">
         {/* LEFT COLUMN: Input Form */}
         <div className="space-y-6">
-          <Card className="border-border shadow-sm">
-            <CardHeader className="pb-4">
+          <Card className="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <CardHeader className="p-0 pb-6">
               <div className="flex items-center gap-2 text-primary mb-1">
                 <Sparkles className="w-5 h-5" />
                 <span className="text-xs font-semibold uppercase tracking-wider">
@@ -236,17 +243,14 @@ export default function NovoItem() {
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-5">
+            <CardContent className="p-0 space-y-5">
               {/* Item Name (Required) */}
-              <div className="space-y-2">
+              <div>
                 <label
                   htmlFor="itemName"
-                  className="text-sm font-semibold text-foreground flex items-center justify-between"
+                  className="block text-sm font-medium text-foreground mb-1.5"
                 >
-                  <span>
-                    Nome do Item / Peça <span className="text-destructive">*</span>
-                  </span>
-                  <span className="text-xs font-normal text-muted-foreground">Obrigatório</span>
+                  Nome do Item / Peça <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="itemName"
@@ -254,13 +258,16 @@ export default function NovoItem() {
                   onChange={(e) => setItemName(e.target.value)}
                   placeholder="Ex: Eixo Cardan Ø50mm com Estrias"
                   disabled={isFormDisabled}
-                  className="font-medium text-sm h-10"
+                  className="h-11 rounded-lg border-input focus:ring-2 font-medium text-sm"
                 />
               </div>
 
               {/* Description (Optional) */}
-              <div className="space-y-2">
-                <label htmlFor="itemDescription" className="text-sm font-semibold text-foreground">
+              <div>
+                <label
+                  htmlFor="itemDescription"
+                  className="block text-sm font-medium text-foreground mb-1.5"
+                >
                   Descrição e Requisitos Técnicos
                 </label>
                 <Textarea
@@ -268,17 +275,15 @@ export default function NovoItem() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Descreva o item, material (ex: Aço SAE 4140), dimensões, tolerâncias H7, rugosidade Ra 0.8..."
-                  rows={4}
                   disabled={isFormDisabled}
-                  className="text-sm resize-y"
+                  className="min-h-[120px] rounded-lg border-input focus:ring-2 text-sm resize-y"
                 />
               </div>
 
               {/* Drawing Upload Dropzone */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
                   <span>Desenho Técnico / Arquivo (Opcional)</span>
-                  <span className="text-xs text-muted-foreground">PDF, PNG, JPG até 10MB</span>
                 </label>
 
                 <input
@@ -296,10 +301,10 @@ export default function NovoItem() {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => !isFormDisabled && fileInputRef.current?.click()}
-                    className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200 ${
+                    className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200 ${
                       isDragOver
-                        ? 'border-primary bg-primary/10 scale-[0.99]'
-                        : 'border-border hover:border-primary/50 hover:bg-muted/30 bg-muted/10'
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border bg-muted/50 hover:border-primary/50 hover:bg-muted/70'
                     } ${isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -310,12 +315,12 @@ export default function NovoItem() {
                         Arraste ou clique para enviar o desenho técnico
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Ou pule o upload e use apenas texto
+                        PDF, PNG, JPG até 10MB • Ou pule o upload e use apenas texto
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3.5 rounded-xl border border-border bg-card flex items-center justify-between gap-3 shadow-sm">
+                  <div className="p-3.5 rounded-lg border border-border bg-card flex items-center justify-between gap-3 shadow-sm">
                     <div className="flex items-center gap-3 min-w-0">
                       {filePreviewUrl ? (
                         <img
@@ -361,7 +366,7 @@ export default function NovoItem() {
                 {fileError && (
                   <Alert
                     variant="destructive"
-                    className="py-2 px-3 text-xs flex items-center gap-2"
+                    className="mt-2 py-2 px-3 text-xs flex items-center gap-2"
                   >
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <AlertDescription>{fileError}</AlertDescription>
@@ -370,8 +375,11 @@ export default function NovoItem() {
               </div>
 
               {/* Optional Drawing URL link */}
-              <div className="space-y-1.5 pt-1">
-                <label htmlFor="drawingUrl" className="text-xs font-medium text-muted-foreground">
+              <div>
+                <label
+                  htmlFor="drawingUrl"
+                  className="block text-sm font-medium text-foreground mb-1.5"
+                >
                   Ou link externo para o desenho (Google Drive, Onedrive, ERP)
                 </label>
                 <Input
@@ -380,19 +388,20 @@ export default function NovoItem() {
                   onChange={(e) => setDrawingUrl(e.target.value)}
                   placeholder="https://exemplo.com/desenhos/DWG-4091.pdf"
                   disabled={isFormDisabled}
-                  className="text-xs h-8"
+                  className="h-11 rounded-lg border-input focus:ring-2 text-sm"
                 />
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 space-y-3">
+              <div className="pt-2 space-y-3">
                 {/* 1. Generate Button */}
                 <Button
                   type="button"
                   onClick={handleGenerate}
                   disabled={!itemName.trim() || isFormDisabled}
-                  size="lg"
-                  className="w-full gap-2 text-sm font-semibold shadow-md h-12"
+                  className={`h-12 w-full bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                    routing ? 'animate-pulse' : ''
+                  }`}
                 >
                   {isGenerating ? (
                     <>
@@ -409,13 +418,16 @@ export default function NovoItem() {
 
                 {/* 2. After Generation Buttons (Confirm, Edit, Regenerate) */}
                 {routing && (
-                  <div className="space-y-2 pt-2 border-t border-border animate-fade-in">
+                  <div className="pt-4 border-t border-border animate-fade-in flex flex-col sm:flex-row gap-3 w-full">
                     <Button
                       type="button"
                       onClick={handleConfirmAndSave}
                       disabled={isFormDisabled}
-                      size="lg"
-                      className="w-full gap-2 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md h-12 animate-pulse"
+                      className={`h-11 rounded-lg text-white font-semibold flex-1 flex items-center justify-center gap-2 transition-all duration-200 ${
+                        saveSuccess
+                          ? 'bg-green-500 scale-[1.02] ring-4 ring-green-300 dark:ring-green-800'
+                          : 'bg-green-600 hover:bg-green-700'
+                      }`}
                     >
                       {isSaving ? (
                         <>
@@ -430,28 +442,27 @@ export default function NovoItem() {
                       )}
                     </Button>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsEditDialogOpen(true)}
-                        disabled={isFormDisabled}
-                        className="gap-1.5 text-xs h-9"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        Editar Roteamento
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={handleGenerate}
-                        disabled={isFormDisabled}
-                        className="gap-1.5 text-xs h-9"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        Gerar Novamente
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setIsEditDialogOpen(true)}
+                      disabled={isFormDisabled}
+                      className="h-11 bg-secondary text-secondary-foreground rounded-lg font-medium flex-1 flex items-center justify-center gap-1.5"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      Editar Roteamento
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleGenerate}
+                      disabled={isFormDisabled}
+                      className="h-11 bg-transparent text-primary underline hover:bg-primary/5 rounded-lg font-medium flex items-center justify-center gap-1.5"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Gerar Novamente
+                    </Button>
                   </div>
                 )}
               </div>
@@ -460,7 +471,7 @@ export default function NovoItem() {
         </div>
 
         {/* RIGHT COLUMN: Flowchart Preview */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
               <span>Fluxo de Fabricação</span>

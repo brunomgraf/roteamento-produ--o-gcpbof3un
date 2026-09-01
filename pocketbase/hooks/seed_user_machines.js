@@ -18,6 +18,19 @@ onRecordAfterCreateSuccess((e) => {
     for (let i = 0; i < defaultMachines.length; i++) {
       const item = defaultMachines[i]
       try {
+        // Idempotent check
+        const existing = $app.findRecordsByFilter(
+          'machines',
+          'user_id = {:userId} && slug = {:slug}',
+          '',
+          1,
+          0,
+          { userId: userId, slug: item.slug },
+        )
+        if (existing && existing.length > 0) {
+          continue
+        }
+
         const rec = new Record(machinesCol)
         rec.set('user_id', userId)
         rec.set('name', item.name)

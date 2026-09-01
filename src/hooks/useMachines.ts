@@ -54,11 +54,19 @@ export function useMachines(): UseMachinesReturn {
         return created
       } catch (err: any) {
         console.error('Error creating machine:', err)
+        const errorCode =
+          err?.status ??
+          err?.code ??
+          err?.statusCode ??
+          err?.response?.code ??
+          err?.response?.status ??
+          err?.name ??
+          'UNKNOWN'
         let errorDetail = err?.message || 'Verifique os dados informados.'
         if (err?.data?.data?.slug?.message || err?.message?.includes('slug')) {
           errorDetail = 'Já existe uma máquina com este identificador (slug).'
         }
-        notify.error('Erro ao cadastrar máquina', {
+        notify.error(`Erro ao cadastrar maquina. Codigo: ${errorCode}`, {
           description: errorDetail,
         })
         return null

@@ -13,6 +13,8 @@ export interface CreateItemPayload {
 }
 
 export async function createItemWithRouting(payload: CreateItemPayload): Promise<ItemRecord> {
+  const currentUserId = pb.authStore.record?.id
+
   // 1. Create item in `itens`
   const itemFormData = new FormData()
   itemFormData.append('nome', payload.nome)
@@ -26,6 +28,9 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
   if (payload.drawing_file) {
     itemFormData.append('drawing_file', payload.drawing_file)
   }
+  if (currentUserId) {
+    itemFormData.append('user_id', currentUserId)
+  }
 
   const itemRecord = await pb.collection('itens').create<ItemRecord>(itemFormData)
   const itemId = itemRecord.id
@@ -36,7 +41,7 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
       const statusValue = (step.status || 'aguardando').toLowerCase().trim()
       const normalizedStatus =
         statusValue === 'pendente' ? 'aguardando' : step.status || 'aguardando'
-      return pb.collection('routing_steps').create({
+      const stepData: Record<string, any> = {
         item_id: itemId,
         step_order: step.step_order || index + 1,
         sector: step.sector || 'Geral',
@@ -44,7 +49,11 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
         description: step.description,
         estimated_hours: Number(step.estimated_hours) || 0,
         status: normalizedStatus,
-      })
+      }
+      if (currentUserId) {
+        stepData.user_id = currentUserId
+      }
+      return pb.collection('routing_steps').create(stepData)
     })
     await Promise.all(stepPromises)
   }
@@ -52,14 +61,18 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
   // 3. Create material purchases
   if (payload.material_purchases && payload.material_purchases.length > 0) {
     const purchasePromises = payload.material_purchases.map((mat) => {
-      return pb.collection('material_purchases').create({
+      const matData: Record<string, any> = {
         item_id: itemId,
         material_name: mat.material_name,
         quantity: Number(mat.quantity) || 1,
         unit: mat.unit || 'un',
         supplier: mat.supplier || '',
         status: mat.status || 'pendente',
-      })
+      }
+      if (currentUserId) {
+        matData.user_id = currentUserId
+      }
+      return pb.collection('material_purchases').create(matData)
     })
     await Promise.all(purchasePromises)
   }
@@ -67,13 +80,17 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
   // 4. Create outsourced services
   if (payload.outsourced_services && payload.outsourced_services.length > 0) {
     const servicePromises = payload.outsourced_services.map((srv) => {
-      return pb.collection('outsourced_services').create({
+      const srvData: Record<string, any> = {
         item_id: itemId,
         service_description: srv.service_description,
         supplier: srv.supplier || '',
         estimated_cost: Number(srv.estimated_cost) || 0,
         status: srv.status || 'pendente',
-      })
+      }
+      if (currentUserId) {
+        srvData.user_id = currentUserId
+      }
+      return pb.collection('outsourced_services').create(srvData)
     })
     await Promise.all(servicePromises)
   }

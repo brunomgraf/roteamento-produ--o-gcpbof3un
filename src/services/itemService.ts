@@ -33,6 +33,9 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
   // 2. Create routing steps in parallel
   if (payload.routing_steps && payload.routing_steps.length > 0) {
     const stepPromises = payload.routing_steps.map((step, index) => {
+      const statusValue = (step.status || 'aguardando').toLowerCase().trim()
+      const normalizedStatus =
+        statusValue === 'pendente' ? 'aguardando' : step.status || 'aguardando'
       return pb.collection('routing_steps').create({
         item_id: itemId,
         step_order: step.step_order || index + 1,
@@ -40,7 +43,7 @@ export async function createItemWithRouting(payload: CreateItemPayload): Promise
         machine_type: step.machine_type || 'outros',
         description: step.description,
         estimated_hours: Number(step.estimated_hours) || 0,
-        status: step.status || 'pendente',
+        status: normalizedStatus,
       })
     })
     await Promise.all(stepPromises)

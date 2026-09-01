@@ -177,22 +177,28 @@ export default function NovoItem() {
   const handleConfirmAndSave = async () => {
     if (!itemName.trim() || !routing || isSaving || isGenerating) return
 
-    const success = await saveItem({
-      nome: itemName.trim(),
-      descricao: description.trim() || undefined,
-      status: 'pendente',
-      drawing_url: drawingUrl.trim() || undefined,
-      drawing_file: selectedFile,
-      routing_steps: routing.routing_steps || [],
-      material_purchases: routing.material_purchases || [],
-      outsourced_services: routing.outsourced_services || [],
-    })
+    try {
+      const result = await saveItem({
+        nome: itemName.trim(),
+        descricao: description.trim() || undefined,
+        status: 'pendente',
+        drawing_url: drawingUrl.trim() || undefined,
+        drawing_file: selectedFile,
+        routing_steps: routing.routing_steps || [],
+        material_purchases: routing.material_purchases || [],
+        outsourced_services: routing.outsourced_services || [],
+      })
 
-    if (success) {
-      setSaveSuccess(true)
-      setTimeout(() => {
-        navigate('/')
-      }, 400)
+      if (result) {
+        setSaveSuccess(true)
+        setTimeout(() => {
+          navigate('/')
+        }, 400)
+      }
+    } catch (err: unknown) {
+      // In case unhandled rejection occurs
+      const errorMsg = err instanceof Error ? err.message : 'Erro inesperado ao salvar o item.'
+      console.error('Erro ao salvar item:', errorMsg)
     }
   }
 

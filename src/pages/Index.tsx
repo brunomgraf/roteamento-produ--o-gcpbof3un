@@ -95,148 +95,116 @@ interface RecentItem {
   id: string
   code: string
   name: string
-  setor: SectorType
-  status: StatusType
+  descricao?: string
+  setor: string
+  status: string
+  statusLabel: string
   data: string
 }
 
-const recentItems: RecentItem[] = [
-  {
-    id: '1',
-    code: 'ORD-1042',
-    name: 'Eixo Principal de Transmissão Ø45mm',
-    setor: 'Torno',
-    status: 'Em Producao',
-    data: 'Hoje, 10:30',
-  },
-  {
-    id: '2',
-    code: 'ORD-1041',
-    name: 'Placa Base com Canais T e Furações',
-    setor: 'Fresa',
-    status: 'Aguardando',
-    data: 'Hoje, 09:15',
-  },
-  {
-    id: '3',
-    code: 'ORD-1040',
-    name: 'Flange de Fixação Multieixo CNC',
-    setor: 'CNC',
-    status: 'Em Producao',
-    data: 'Hoje, 08:45',
-  },
-  {
-    id: '4',
-    code: 'ORD-1039',
-    name: 'Guia Linear de Precisão Micrométrica',
-    setor: 'Retifica',
-    status: 'Concluido',
-    data: 'Ontem, 17:20',
-  },
-  {
-    id: '5',
-    code: 'ORD-1038',
-    name: 'Tratamento Térmico por Indução (Nitretação)',
-    setor: 'Terceirizado',
-    status: 'Com Material',
-    data: 'Ontem, 15:40',
-  },
-  {
-    id: '6',
-    code: 'ORD-1037',
-    name: 'Bloco de Alumínio 7075 T651 (Tarugo)',
-    setor: 'Compra',
-    status: 'Concluido',
-    data: 'Ontem, 14:10',
-  },
-  {
-    id: '7',
-    code: 'ORD-1036',
-    name: 'Bucha Cônica de Ajuste com Rosca M24',
-    setor: 'Torno',
-    status: 'Aguardando',
-    data: 'Ontem, 11:05',
-  },
-  {
-    id: '8',
-    code: 'ORD-1035',
-    name: 'Eixo Sem-Fim Passo 4mm Aço 8620',
-    setor: 'Torno',
-    status: 'Em Producao',
-    data: 'Ontem, 09:30',
-  },
-  {
-    id: '9',
-    code: 'ORD-1034',
-    name: 'Suporte de Fixação Usinado em Centro CNC',
-    setor: 'CNC',
-    status: 'Aguardando',
-    data: 'Anteontem, 16:45',
-  },
-  {
-    id: '10',
-    code: 'ORD-1033',
-    name: 'Anel Espaçador Retificado 0.005mm',
-    setor: 'Retifica',
-    status: 'Concluido',
-    data: 'Anteontem, 14:20',
-  },
-  {
-    id: '11',
-    code: 'ORD-1032',
-    name: 'Engrenagem Cônica Helicoidal Módulo 3',
-    setor: 'Fresa',
-    status: 'Em Producao',
-    data: 'Anteontem, 11:15',
-  },
-  {
-    id: '12',
-    code: 'ORD-1031',
-    name: 'Tarugo Latão CLA Ø38mm x 1000mm',
-    setor: 'Compra',
-    status: 'Concluido',
-    data: 'Anteontem, 08:30',
-  },
-  {
-    id: '13',
-    code: 'ORD-1030',
-    name: 'Eixo Estriado 6 Vias SAE 4340',
-    setor: 'Torno',
-    status: 'Com Material',
-    data: '3 dias atrás',
-  },
-  {
-    id: '14',
-    code: 'ORD-1029',
-    name: 'Câmara de Válvula Hidráulica 4 Vias',
-    setor: 'CNC',
-    status: 'Concluido',
-    data: '3 dias atrás',
-  },
-  {
-    id: '15',
-    code: 'ORD-1028',
-    name: 'Tratamento Térmico Cementação e Têmpera',
-    setor: 'Terceirizado',
-    status: 'Concluido',
-    data: '4 dias atrás',
-  },
-]
-
-const sectorChipClasses: Record<SectorType, string> = {
+const sectorChipClasses: Record<string, string> = {
   Torno: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+  torno: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
   Fresa: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  fresa: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
   CNC: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
+  cnc: 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
   Retifica: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+  retifica: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+  Retífica: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
   Terceirizado: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+  terceirizado: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
   Compra: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+  compra: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+  Corte: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+  corte: 'bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300',
+  Solda: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+  solda: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
+  Inspeção: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
+  inspecao: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
 }
 
-const statusBadgeClasses: Record<StatusType, string> = {
-  Aguardando: 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300',
-  'Em Producao': 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
-  Concluido: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
-  'Com Material': 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+function getSectorChipClass(sector?: string): string {
+  if (!sector) return 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300'
+  return (
+    sectorChipClasses[sector] ||
+    sectorChipClasses[sector.toLowerCase()] ||
+    'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300'
+  )
+}
+
+function formatRelativeDate(dateStr?: string): string {
+  if (!dateStr) return '-'
+  try {
+    const d = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now.getTime() - d.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    const timeStr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+
+    const isToday =
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+
+    if (isToday) {
+      return `Hoje, ${timeStr}`
+    }
+
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const isYesterday =
+      d.getFullYear() === yesterday.getFullYear() &&
+      d.getMonth() === yesterday.getMonth() &&
+      d.getDate() === yesterday.getDate()
+
+    if (isYesterday) {
+      return `Ontem, ${timeStr}`
+    }
+
+    if (diffDays === 2) {
+      return `Anteontem, ${timeStr}`
+    }
+
+    if (diffDays > 2 && diffDays <= 7) {
+      return `${diffDays} dias atrás`
+    }
+
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  } catch {
+    return dateStr
+  }
+}
+
+function getItemStatusDetails(status?: string): { label: string; badgeClass: string } {
+  const norm = (status || '').toLowerCase().trim()
+  if (
+    norm === 'em_producao' ||
+    norm === 'em producao' ||
+    norm === 'em_andamento' ||
+    norm === 'em andamento'
+  ) {
+    return {
+      label: 'Em Produção',
+      badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+    }
+  }
+  if (norm === 'finalizado' || norm === 'concluido' || norm === 'concluído') {
+    return {
+      label: 'Finalizado',
+      badgeClass: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300',
+    }
+  }
+  if (norm === 'com_material' || norm === 'com material') {
+    return {
+      label: 'Com Material',
+      badgeClass: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+    }
+  }
+  return {
+    label: 'Pendente',
+    badgeClass: 'bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300',
+  }
 }
 
 const PAGE_SIZE = 10
@@ -244,13 +212,14 @@ const PAGE_SIZE = 10
 export default function Index() {
   const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE)
   const [machinesData, setMachinesData] = useState<DynamicMachineCard[]>([])
-  const [loadingMachines, setLoadingMachines] = useState<boolean>(true)
-  const [machinesError, setMachinesError] = useState<string | null>(null)
+  const [recentItemsList, setRecentItemsList] = useState<RecentItem[]>([])
+  const [loadingDashboard, setLoadingDashboard] = useState<boolean>(true)
+  const [dashboardError, setDashboardError] = useState<string | null>(null)
 
   const loadDashboardData = useCallback(async () => {
     try {
-      setLoadingMachines(true)
-      setMachinesError(null)
+      setLoadingDashboard(true)
+      setDashboardError(null)
 
       // 1. Fetch active machines from PocketBase
       const activeMachines = await pb.collection('machines').getFullList<Machine>({
@@ -260,8 +229,55 @@ export default function Index() {
 
       // 2. Fetch all routing steps
       const routingSteps = await pb.collection('routing_steps').getFullList({
-        fields: 'id,machine_type,status,updated,created',
+        fields: 'id,item_id,machine_type,sector,step_order,status,updated,created',
       })
+
+      // 3. Fetch all itens from PocketBase (sorted newest first)
+      const rawItens = await pb.collection('itens').getFullList({
+        sort: '-created',
+      })
+
+      // Build a map of item_id -> first/active step sector
+      const itemStepsMap = new Map<string, any[]>()
+      for (const step of routingSteps) {
+        if (step.item_id) {
+          const list = itemStepsMap.get(step.item_id) || []
+          list.push(step)
+          itemStepsMap.set(step.item_id, list)
+        }
+      }
+
+      // Format items list for table
+      const formattedItems: RecentItem[] = rawItens.map((item, idx) => {
+        const itemSteps = (itemStepsMap.get(item.id) || []).sort(
+          (a, b) => (Number(a.step_order) || 0) - (Number(b.step_order) || 0),
+        )
+
+        // Find current/relevant sector (active or first step sector)
+        let sectorDisplay = 'Geral'
+        if (itemSteps.length > 0) {
+          const inProgressStep = itemSteps.find((s) => normalizeStatus(s.status) === 'em_andamento')
+          const firstStep = itemSteps[0]
+          const targetStep = inProgressStep || firstStep
+          sectorDisplay = targetStep.sector || targetStep.machine_type || 'Geral'
+        }
+
+        const code = `ORD-${1000 + (rawItens.length - idx)}`
+        const statusInfo = getItemStatusDetails(item.status)
+
+        return {
+          id: item.id,
+          code,
+          name: item.nome || 'Item sem nome',
+          descricao: item.descricao,
+          setor: sectorDisplay,
+          status: item.status || 'pendente',
+          statusLabel: statusInfo.label,
+          data: formatRelativeDate(item.updated || item.created),
+        }
+      })
+
+      setRecentItemsList(formattedItems)
 
       // Helper for "today" in local date string format YYYY-MM-DD
       const now = new Date()
@@ -277,7 +293,7 @@ export default function Index() {
         )
       }
 
-      // 3. Compute stats per machine
+      // 4. Compute stats per machine
       const calculatedCards: DynamicMachineCard[] = activeMachines.map((m) => {
         const slug = m.slug?.toLowerCase().trim() || ''
         const mSteps = routingSteps.filter(
@@ -317,9 +333,9 @@ export default function Index() {
       setMachinesData(calculatedCards)
     } catch (err: any) {
       console.error('Erro ao carregar dados do dashboard:', err)
-      setMachinesError(err?.message || 'Falha ao carregar os dados das máquinas.')
+      setDashboardError(err?.message || 'Falha ao carregar os dados do dashboard.')
     } finally {
-      setLoadingMachines(false)
+      setLoadingDashboard(false)
     }
   }, [])
 
@@ -343,13 +359,13 @@ export default function Index() {
 
   // Pagination for recent items: 10 per page with "Carregar mais"
   const visibleItems = useMemo(() => {
-    return recentItems.slice(0, visibleCount)
-  }, [visibleCount])
+    return recentItemsList.slice(0, visibleCount)
+  }, [recentItemsList, visibleCount])
 
-  const hasMoreItems = visibleCount < recentItems.length
+  const hasMoreItems = visibleCount < recentItemsList.length
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, recentItems.length))
+    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, recentItemsList.length))
   }
 
   return (
@@ -385,7 +401,7 @@ export default function Index() {
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
             Resumo das Máquinas
           </h2>
-          {!loadingMachines && !machinesError && machinesData.length > 0 && (
+          {!loadingDashboard && !dashboardError && machinesData.length > 0 && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400">
                 <Clock className="w-3.5 h-3.5" aria-hidden="true" />
@@ -402,11 +418,11 @@ export default function Index() {
                 Concluídos: {machineTotals.totalConcluidos}
               </span>
             </div>
-          )}
+          )}{' '}
         </div>
 
         {/* Loading State */}
-        {loadingMachines && (
+        {loadingDashboard && (
           <div
             role="status"
             aria-live="polite"
@@ -433,14 +449,14 @@ export default function Index() {
         )}
 
         {/* Error State */}
-        {!loadingMachines && machinesError && (
+        {!loadingDashboard && dashboardError && (
           <Card className="border-destructive/30 bg-destructive/5 p-6 text-center max-w-lg mx-auto space-y-3">
             <div className="w-10 h-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
               <AlertTriangle className="w-5 h-5" aria-hidden="true" />
             </div>
             <div className="space-y-1">
               <h3 className="text-base font-semibold text-foreground">Erro ao carregar máquinas</h3>
-              <p className="text-xs text-muted-foreground">{machinesError}</p>
+              <p className="text-xs text-muted-foreground">{dashboardError}</p>
             </div>
             <Button
               variant="outline"
@@ -455,7 +471,7 @@ export default function Index() {
         )}
 
         {/* Empty State */}
-        {!loadingMachines && !machinesError && machinesData.length === 0 && (
+        {!loadingDashboard && !dashboardError && machinesData.length === 0 && (
           <Card className="border-dashed border-2 border-border p-10 text-center max-w-md mx-auto space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
               <Factory className="w-6 h-6" aria-hidden="true" />
@@ -480,7 +496,7 @@ export default function Index() {
         )}
 
         {/* Dynamic Machine Cards */}
-        {!loadingMachines && !machinesError && machinesData.length > 0 && (
+        {!loadingDashboard && !dashboardError && machinesData.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {machinesData.map((m, index) => {
               const Icon = m.icon
@@ -552,85 +568,124 @@ export default function Index() {
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-foreground">Itens Recentes</h2>
             <p className="text-xs text-muted-foreground">
-              Mostrando {visibleItems.length} de {recentItems.length} ordens de fabricação
-              registradas
+              {loadingDashboard
+                ? 'Carregando itens cadastrados...'
+                : recentItemsList.length > 0
+                  ? `Mostrando ${visibleItems.length} de ${recentItemsList.length} ordens de fabricação registradas`
+                  : 'Nenhum item cadastrado no sistema ainda.'}
             </p>
           </div>
         </div>
 
         <div className="rounded-lg border border-border bg-card overflow-hidden shadow-sm">
-          <Table>
-            <TableHeader className="bg-muted">
-              <TableRow className="hover:bg-muted/80 border-b border-border">
-                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
-                  Código
-                </TableHead>
-                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
-                  Descrição do Item
-                </TableHead>
-                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
-                  Setor
-                </TableHead>
-                <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
-                  Status
-                </TableHead>
-                <TableHead className="text-xs uppercase text-muted-foreground font-semibold text-right">
-                  Atualização
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visibleItems.map((item, index) => {
-                const rowDelay = `${Math.min(index * 30, 300)}ms`
-                return (
-                  <TableRow
-                    key={item.id}
-                    style={{
-                      animationDelay: rowDelay,
-                      animationFillMode: 'backwards',
-                    }}
-                    className="border-b border-border hover:bg-muted/50 transition-colors animate-fade-in-stagger"
-                  >
-                    <TableCell className="font-mono text-xs font-semibold text-foreground py-3">
-                      {item.code}
-                    </TableCell>
-                    <TableCell className="text-sm font-medium text-foreground py-3">
-                      {item.name}
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${sectorChipClasses[item.setor]}`}
-                      >
-                        {item.setor}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClasses[item.status]}`}
-                      >
-                        {item.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right text-xs text-muted-foreground py-3">
-                      {item.data}
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+          {loadingDashboard ? (
+            <div className="p-6 space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center justify-between gap-4 py-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-48 flex-1" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          ) : recentItemsList.length === 0 ? (
+            <div className="p-12 text-center space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Nenhum item de produção cadastrado até o momento.
+              </p>
+              <Button asChild size="sm" className="gap-2 min-h-[44px] h-11 px-5">
+                <Link to="/novo-item">
+                  <Plus className="w-4 h-4" aria-hidden="true" />
+                  Cadastrar Primeiro Item
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader className="bg-muted">
+                <TableRow className="hover:bg-muted/80 border-b border-border">
+                  <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                    Código
+                  </TableHead>
+                  <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                    Descrição do Item
+                  </TableHead>
+                  <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                    Setor
+                  </TableHead>
+                  <TableHead className="text-xs uppercase text-muted-foreground font-semibold">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-xs uppercase text-muted-foreground font-semibold text-right">
+                    Atualização
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {visibleItems.map((item, index) => {
+                  const rowDelay = `${Math.min(index * 30, 300)}ms`
+                  const statusInfo = getItemStatusDetails(item.status)
+                  return (
+                    <TableRow
+                      key={item.id}
+                      style={{
+                        animationDelay: rowDelay,
+                        animationFillMode: 'backwards',
+                      }}
+                      className="border-b border-border hover:bg-muted/50 transition-colors animate-fade-in-stagger"
+                    >
+                      <TableCell className="font-mono text-xs font-semibold text-foreground py-3">
+                        {item.code}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="text-sm font-medium text-foreground">{item.name}</div>
+                        {item.descricao && (
+                          <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                            {item.descricao}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${getSectorChipClass(
+                            item.setor,
+                          )}`}
+                        >
+                          {item.setor}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusInfo.badgeClass}`}
+                        >
+                          {statusInfo.label}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground py-3">
+                        {item.data}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
 
           {/* Paginação: Botão Carregar Mais */}
-          {hasMoreItems && (
+          {!loadingDashboard && hasMoreItems && (
             <div className="p-4 border-t border-border flex items-center justify-center bg-muted/20">
               <Button
                 variant="outline"
                 onClick={handleLoadMore}
                 className="gap-2 min-h-[44px] h-11 px-6 font-medium text-sm focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={`Carregar mais itens recentes (mostrando ${visibleItems.length} de ${recentItems.length})`}
+                aria-label={`Carregar mais itens recentes (mostrando ${visibleItems.length} de ${recentItemsList.length})`}
               >
                 <ChevronDown className="w-4 h-4" aria-hidden="true" />
-                <span>Carregar mais ({recentItems.length - visibleItems.length} restantes)</span>
+                <span>
+                  Carregar mais ({recentItemsList.length - visibleItems.length} restantes)
+                </span>
               </Button>
             </div>
           )}

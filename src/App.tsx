@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react'
 // Lazy loading de todas as rotas da aplicação
 const Index = lazy(() => import('./pages/Index'))
 const NovoItem = lazy(() => import('./pages/NovoItem'))
+const Maquinas = lazy(() => import('./pages/Maquinas'))
 const MaquinaDetail = lazy(() => import('./pages/MaquinaDetail'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
@@ -41,6 +42,7 @@ const App = () => (
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/novo-item" element={<NovoItem />} />
+                <Route path="/maquinas" element={<Maquinas />} />
                 <Route path="/maquina/:type" element={<MaquinaDetail />} />
               </Route>
               <Route path="*" element={<NotFound />} />

@@ -11,6 +11,7 @@ import {
   Layers,
   Cpu,
   Gauge,
+  Sliders,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -28,6 +29,11 @@ const navItems = [
     name: 'Novo Item',
     to: '/novo-item',
     icon: PlusCircle,
+  },
+  {
+    name: 'Máquinas',
+    to: '/maquinas',
+    icon: Sliders,
   },
 ]
 
